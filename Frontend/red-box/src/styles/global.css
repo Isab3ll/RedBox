@@ -53,3 +53,86 @@ body {
 .sidebar a:hover {
   background-color: #444;
 }
+
+.counter-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
+}
+
+.counter-box {
+  background-color: var(--accent-color);
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  flex: 1 1 calc(16.66% - 20px);
+  min-width: 150px;
+  max-width: calc(16.66% - 20px);
+}
+
+.counter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.minus, .plus {
+  background-color: #555;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 18px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.minus:hover, .plus:hover {
+  background-color: #777;
+}
+
+.action-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #444;
+  color: white;
+  border: none;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.action-button:hover {
+  background-color: #666;
+}
+
+.container-status {
+  margin-top: 20px;
+  background-color: var(--accent-color);
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 800px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+  width: 50%;
+}
+
+th {
+  background-color: #444;
+  color: #fff;
+}
+
+tr:hover {
+  background-color: #444;
+}
