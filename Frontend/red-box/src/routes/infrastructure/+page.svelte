@@ -1,5 +1,8 @@
 <script>
   import { onMount } from "svelte";
+  import { env } from "$env/dynamic/public";
+
+  const backend_url = env.PUBLIC_BACKEND_URL === "" ? "localhost" : env.PUBLIC_BACKEND_URL;
 
   let nginx_count = 0;
   let tomcat_count = 0;
@@ -18,7 +21,7 @@
   };
 
   async function sendRequest(action) {
-    const response = await fetch(`http://localhost:8000/${action}`, {
+    const response = await fetch(`http://${backend_url}:8000/${action}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -36,7 +39,7 @@
     isLoading = true;
     statusOutput = "Loading...";
 
-    const response = await fetch("http://localhost:8000/status", {
+    const response = await fetch(`http://${backend_url}:8000/status`, {
       method: "POST",
     });
     const data = await response.json();

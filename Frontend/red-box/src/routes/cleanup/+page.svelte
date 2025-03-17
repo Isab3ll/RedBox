@@ -1,4 +1,8 @@
 <script>
+  import { env } from "$env/dynamic/public";
+
+  const backend_url = env.PUBLIC_BACKEND_URL === "" ? "localhost" : env.PUBLIC_BACKEND_URL;
+
   let cleanupStatus = "";
   let isCleaning = false;
 
@@ -6,7 +10,7 @@
     cleanupStatus = "Cleaning up...";
     isCleaning = true;
 
-    const response = await fetch(`http://localhost:8000/destroy`, {
+    const response = await fetch(`http://${backend_url}:8000/destroy`, {
       method: "POST",
     });
 
@@ -16,7 +20,7 @@
   }
 
   async function fetchStatus() {
-    const response = await fetch("http://localhost:8000/status", {
+    const response = await fetch(`http://${backend_url}:8000/status`, {
       method: "POST",
     });
     const data = await response.json();

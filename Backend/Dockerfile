@@ -16,10 +16,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+RUN cd terraform && \
+    terraform init
+
 CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8000" ]
 
 # Builowanie obrazu
-# docker build -t docker-python-test:latest .
+# docker build -t isab3ll/management:backend .
+
+# Pushowanie obrazu
+# docker push isab3ll/management:backend
 
 # Uruchamianie kontenera
-# docker run -p 8000:8000 --rm docker-python-test:latest
+# docker run -p 8000:8000 --env FRONTEND_URL=192.168.0.28 --rm -d -v /root/.ssh:/root/.ssh:ro isab3ll/management:backend

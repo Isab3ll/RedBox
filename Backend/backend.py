@@ -6,10 +6,11 @@ import os
 
 app = FastAPI()
 TERRAFORM_DIR = "terraform"
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "localhost")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["POST", "OPTIONS"],
     allow_headers=["Content-Type"],
