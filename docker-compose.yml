@@ -1,0 +1,19 @@
+services:
+
+  frontend:
+    build: ./Frontend/red-box
+    image: isab3ll/management:frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - PUBLIC_BACKEND_URL=192.168.0.28
+
+  backend:
+    build: ./Backend
+    image: isab3ll/management:backend
+    ports:
+      - "8000:8000"
+    environment:
+      - FRONTEND_URL=192.168.0.28
+    volumes:
+      - /root/.ssh:/root/.ssh:ro
