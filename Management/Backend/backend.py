@@ -4,13 +4,14 @@ import subprocess
 import json
 import os
 
-app = FastAPI()
-TERRAFORM_DIR = "terraform"
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "localhost")
+TERRAFORM_DIR = "terraform"
+
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[f"http://{FRONTEND_URL}:5173"],
     allow_credentials=True,
     allow_methods=["POST", "OPTIONS"],
     allow_headers=["Content-Type"],
@@ -20,10 +21,10 @@ app.add_middleware(
 def apply_infrastructure(data: dict):
     try:
         variables = {
-            "nginx_count": data.get("nginx_count", 1),
-            "tomcat_count": data.get("tomcat_count", 1),
-            "mysql_count": data.get("mysql_count", 1),
-            "postgres_count": data.get("postgres_count", 1)
+            "nginx_count": data.get("nginx_count", 0),
+            "tomcat_count": data.get("tomcat_count", 0),
+            "mysql_count": data.get("mysql_count", 0),
+            "postgres_count": data.get("postgres_count", 0),
         }
 
         variables_file = os.path.join(TERRAFORM_DIR, "terraform.tfvars.json")
