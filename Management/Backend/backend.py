@@ -1,11 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import subprocess
 import json
 import os
+import subprocess
 
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "localhost")
 TERRAFORM_DIR = "terraform"
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "localhost")
+ATTACK_URL = os.environ.get("ATTACK_URL")
+INFRA_URL = os.environ.get("INFRA_URL")
+SSH_USER = "root"
+SSH_KEY_PATH = "/root/.ssh/authorized_keys"
 
 app = FastAPI()
 

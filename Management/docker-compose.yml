@@ -15,5 +15,7 @@ services:
       - "8000:8000"
     environment:
       - FRONTEND_URL=192.168.0.28
+      - INFRA_URL=192.168.0.29
+      - ATTACK_URL=192.168.0.25
     volumes:
       - /root/.ssh:/root/.ssh:ro

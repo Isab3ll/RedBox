@@ -28,4 +28,4 @@ CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8000" ]
 # docker push isab3ll/management:backend
 
 # Uruchamianie kontenera
-# docker run -p 8000:8000 --env FRONTEND_URL=192.168.0.28 --rm -d -v /root/.ssh:/root/.ssh:ro isab3ll/management:backend
+# docker run -p 8000:8000 --env FRONTEND_URL=192.168.0.28 INFRA_URL=192.168.0.29 ATTACK_URL=192.168.0.25 --rm -d -v /root/.ssh:/root/.ssh:ro isab3ll/management:backend

@@ -1,2 +1,2 @@
-<h2>Logs</h2>
+<h2>Data</h2>
 <p>This page is under development.</p>

@@ -2,7 +2,8 @@
   import { onMount } from "svelte";
   import { env } from "$env/dynamic/public";
 
-  const backend_url = env.PUBLIC_BACKEND_URL === "" ? "localhost" : env.PUBLIC_BACKEND_URL;
+  const backend_url =
+    env.PUBLIC_BACKEND_URL === "" ? "localhost" : env.PUBLIC_BACKEND_URL;
 
   let nginx_count = 0;
   let tomcat_count = 0;
