@@ -27,6 +27,7 @@ services:
       - elasticsearch
     volumes:
       - kibana-config:/usr/share/kibana/config
+      - kibana-data:/usr/share/kibana/data
 
 networks:
   elastic:
@@ -36,4 +37,6 @@ volumes:
   elasticsearch-data:
     driver: local
   kibana-config:
+    driver: local
+  kibana-data:
     driver: local

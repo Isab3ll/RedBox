@@ -26,6 +26,3 @@ CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8000" ]
 
 # Pushowanie obrazu
 # docker push isab3ll/management:backend
-
-# Uruchamianie kontenera
-# docker run -p 8000:8000 --env FRONTEND_IP=192.168.0.28 --env FRONTEND_PORT=5173 --rm -d -v /root/.ssh:/root/.ssh:ro isab3ll/management:backend
