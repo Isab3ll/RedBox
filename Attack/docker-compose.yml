@@ -1,0 +1,7 @@
+services:
+
+  caldera:
+    image: caldera:latest
+    container_name: caldera
+    ports:
+      - "8888:8888"
