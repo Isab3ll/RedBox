@@ -2,8 +2,8 @@
   import { onMount } from "svelte";
   import { env } from "$env/dynamic/public";
 
-  const backend_url =
-    env.PUBLIC_BACKEND_URL === "" ? "localhost" : env.PUBLIC_BACKEND_URL;
+  const backend_ip = env.PUBLIC_BACKEND_IP === "" ? "localhost" : env.PUBLIC_BACKEND_IP;
+  const backend_port = env.PUBLIC_BACKEND_PORT === "" ? "8000" : env.PUBLIC_BACKEND_PORT;
 
   let nginx_count = 0;
   let tomcat_count = 0;
@@ -22,7 +22,7 @@
   };
 
   async function sendRequest(action) {
-    const response = await fetch(`http://${backend_url}:8000/${action}`, {
+    const response = await fetch(`http://${backend_ip}:${backend_port}/${action}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -40,7 +40,7 @@
     isLoading = true;
     statusOutput = "Loading...";
 
-    const response = await fetch(`http://${backend_url}:8000/status`, {
+    const response = await fetch(`http://${backend_ip}:${backend_port}/status`, {
       method: "POST",
     });
     const data = await response.json();

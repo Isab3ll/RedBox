@@ -59,7 +59,6 @@ body {
   flex-wrap: wrap;
   gap: 20px;
   justify-content: flex-start;
-  margin-bottom: 20px;
 }
 
 .counter-box {
@@ -103,6 +102,7 @@ body {
   border-radius: 5px;
   cursor: pointer;
   width: auto;
+  margin-top: 20px;
 }
 
 .action-button:hover {
@@ -111,7 +111,6 @@ body {
 
 .container-status {
   margin-top: 20px;
-  margin-bottom: 20px;
   background-color: var(--accent-color);
   padding: 20px;
   border-radius: 8px;
@@ -137,50 +136,4 @@ th {
 
 tr:hover {
   background-color: #444;
-}
-
-.attack-container {
-  display: flex;
-  gap: 20px;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.attack-box {
-  background-color: var(--accent-color);
-  padding: 15px;
-  border-radius: 8px;
-  text-align: center;
-  flex: 1 1 calc(33.33% - 20px);
-  min-width: 200px;
-  max-width: 250px;
-}
-
-.attack-box select {
-  width: 100%;
-  background-color: var(--sidebar-color);
-  color: var(--text-color);
-  border: none;
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.attack-button-container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  width: auto;
-  align-items: flex-start;
-}
-
-.attack-result {
-  margin-top: 20px;
-  color: white;
-  text-align: left;
-  padding: 10px 15px;
-  background-color: transparent;
-  border-radius: 8px;
 }

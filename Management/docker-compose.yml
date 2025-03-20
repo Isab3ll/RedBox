@@ -6,7 +6,10 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - PUBLIC_BACKEND_URL=192.168.0.28
+      - PUBLIC_BACKEND_IP=192.168.0.28
+      - PUBLIC_BACKEND_PORT=8000
+      - PUBLIC_ATTACK_IP=192.168.0.25
+      - PUBLIC_ATTACK_PORT=8888
 
   backend:
     build: ./Backend
@@ -14,8 +17,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - FRONTEND_URL=192.168.0.28
-      - INFRA_URL=192.168.0.29
-      - ATTACK_URL=192.168.0.25
+      - FRONTEND_IP=192.168.0.28
+      - FRONTEND_PORT=5173
     volumes:
       - /root/.ssh:/root/.ssh:ro

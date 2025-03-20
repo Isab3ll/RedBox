@@ -5,17 +5,14 @@ import os
 import subprocess
 
 TERRAFORM_DIR = "terraform"
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "localhost")
-ATTACK_URL = os.environ.get("ATTACK_URL")
-INFRA_URL = os.environ.get("INFRA_URL")
-SSH_USER = "root"
-SSH_KEY_PATH = "/root/.ssh/authorized_keys"
+FRONTEND_IP = os.environ.get("FRONTEND_IP", "localhost")
+FRONTEND_PORT = os.environ.get("FRONTEND_PORT", "5173")
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[f"http://{FRONTEND_URL}:5173"],
+    allow_origins=[f"http://{FRONTEND_IP}:{FRONTEND_PORT}"],
     allow_credentials=True,
     allow_methods=["POST", "OPTIONS"],
     allow_headers=["Content-Type"],
