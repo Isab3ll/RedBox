@@ -3,7 +3,12 @@ resource "docker_container" "nginx" {
 
   image = "nginx:latest"
   name  = "nginx-${count.index + 1}"
-  
+
+  labels {
+    label = "module"
+    value = "infrastructure"
+  }
+
   ports {
     internal = 80
     external = 8000 + count.index
@@ -15,7 +20,12 @@ resource "docker_container" "tomcat" {
 
   image = "tomcat:latest"
   name  = "tomcat-${count.index + 1}"
-  
+
+  labels {
+    label = "module"
+    value = "infrastructure"
+  }
+
   ports {
     internal = 8080
     external = 8081 + count.index
@@ -28,13 +38,18 @@ resource "docker_container" "mysql" {
   image = "mysql:latest"
   name  = "mysql-${count.index + 1}"
   
+  labels {
+    label = "module"
+    value = "infrastructure"
+  }
+  
   ports {
     internal = 3306
     external = 3307 + count.index
   }
 
   env = [
-    "MYSQL_ROOT_PASSWORD=rootpassword"
+    "MYSQL_ROOT_PASSWORD=mysql"
   ]
 }
 
@@ -44,12 +59,19 @@ resource "docker_container" "postgres" {
   image = "postgres:latest"
   name  = "postgres-${count.index + 1}"
   
+  labels {
+    label = "module"
+    value = "infrastructure"
+  }
+  
   ports {
     internal = 5432
     external = 5433 + count.index
   }
 
   env = [
-    "POSTGRES_PASSWORD=postgrespassword"
+    "POSTGRES_PASSWORD=postgres"
   ]
+
+  command = [ "postgres", "-c", "log_statement=all" ]
 }
