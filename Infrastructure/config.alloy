@@ -1,0 +1,22 @@
+logging {
+  level  = "debug"
+  format = "logfmt"
+}
+
+loki.write "loki" {
+    endpoint {
+        url = "http://192.168.0.27:3100/loki/api/v1/push"
+    }
+}
+
+discovery.docker "linux" {
+  host = "unix:///var/run/docker.sock"
+}
+
+loki.source.docker "default" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.linux.targets
+  labels     = {"module" = "infrastructure"}
+  forward_to = [loki.write.loki.receiver]
+  refresh_interval = "10s"
+}
