@@ -149,3 +149,10 @@ tr:hover {
   height: 100%;
   border: none;
 }
+
+.container-logo {
+  width: 60px;
+  height: 60px;
+  display: block;
+  margin: 0 auto 10px;
+}
