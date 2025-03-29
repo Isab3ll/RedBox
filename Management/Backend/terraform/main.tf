@@ -13,6 +13,11 @@ resource "docker_container" "nginx" {
     internal = 80
     external = 8000 + count.index
   }
+
+  networks_advanced {
+    name = docker_network.infrastructure.name
+    aliases = ["nginx-${count.index + 1}"]
+  }
 }
 
 resource "docker_container" "tomcat" {
@@ -29,6 +34,11 @@ resource "docker_container" "tomcat" {
   ports {
     internal = 8080
     external = 8081 + count.index
+  }
+
+  networks_advanced {
+    name = docker_network.infrastructure.name
+    aliases = ["tomcat-${count.index + 1}"]
   }
 }
 
@@ -48,6 +58,11 @@ resource "docker_container" "mysql" {
     external = 3307 + count.index
   }
 
+  networks_advanced {
+    name = docker_network.infrastructure.name
+    aliases = ["mysql-${count.index + 1}"]
+  }
+  
   env = [
     "MYSQL_ROOT_PASSWORD=mysql"
   ]
@@ -69,9 +84,19 @@ resource "docker_container" "postgres" {
     external = 5433 + count.index
   }
 
+  networks_advanced {
+    name = docker_network.infrastructure.name
+    aliases = ["postgres-${count.index + 1}"]
+  }
+
   env = [
     "POSTGRES_PASSWORD=postgres"
   ]
 
   command = [ "postgres", "-c", "log_statement=all" ]
+}
+
+resource "docker_network" "infrastructure" {
+  name = "infrastructure"
+  driver = "bridge"
 }
