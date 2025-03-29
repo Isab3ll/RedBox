@@ -29,8 +29,6 @@ def apply_infrastructure(data: dict):
             "redis_count": data.get("redis_count", 0),
             "wordpress_count": data.get("wordpress_count", 0),
             "rabbitmq_count": data.get("rabbitmq_count", 0),
-            "mongodb_count": data.get("mongodb_count", 0),
-            "kafka_count": data.get("kafka_count", 0),
             "httpd_count": data.get("httpd_count", 0)
         }
 

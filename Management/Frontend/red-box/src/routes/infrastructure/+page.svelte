@@ -17,6 +17,8 @@
   let statusOutput = "";
   let containers = [];
   let isLoading = true;
+  let cleanupStatus = "";
+  let isCleaning = false;
 
   const resetCounts = () => {
     nginx_count = 0;
@@ -29,8 +31,8 @@
     httpd_count = 0;
   };
 
-  async function sendRequest(action) {
-    const response = await fetch(`http://${backend_ip}:${backend_port}/${action}`, {
+  async function buildEnvironment() {
+    const response = await fetch(`http://${backend_ip}:${backend_port}/apply`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -46,6 +48,17 @@
     });
     resetCounts();
     fetchStatus();
+  }
+
+  async function destroyEnvironment() {
+    cleanupStatus = "Cleaning up...";
+    isCleaning = true;
+
+    const response = await fetch(`http://${backend_ip}:${backend_port}/destroy`, {
+      method: "POST",
+    });
+
+    setTimeout(async () => {await fetchCleanup();}, 10000);
   }
 
   async function fetchStatus() {
@@ -81,6 +94,26 @@
     }
 
     isLoading = false;
+  }
+
+  async function fetchCleanup() {
+    const response = await fetch(`http://${backend_ip}:${backend_port}/status`, {
+      method: "POST",
+    });
+    const data = await response.json();
+
+    if (data.status === "success") {
+      if (!data.output.trim()) {
+        cleanupStatus = "Cleanup successful! No containers running";
+      } else {
+        cleanupStatus =
+          "Containers still running, please perform cleanup again";
+      }
+    } else {
+      cleanupStatus = `Error fetching status: ${data.output}`;
+    }
+
+    isCleaning = false;
   }
 
   onMount(() => {
@@ -174,7 +207,8 @@
   </div>
 </div>
 
-<button class="action-button" on:click={() => sendRequest("apply")}>Start Environment</button>
+ <br/>
+<button class="action-button" on:click={() => buildEnvironment()}>Start Environment</button>
 
 <h2>Infrastructure Status</h2>
 
@@ -204,3 +238,10 @@
 {/if}
 
 <button class="action-button" on:click={fetchStatus}>Refresh Status</button>
+
+<h2>Cleanup Environment</h2>
+<p>Click the button below to remove all infrastructure.</p>
+
+<button class="action-button" on:click={destroyEnvironment} disabled={isCleaning}>Destroy Environment</button>
+<p>{cleanupStatus}</p>
+<br/>

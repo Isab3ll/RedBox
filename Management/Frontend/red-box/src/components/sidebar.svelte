@@ -15,5 +15,4 @@
   <a href="/attack" class={currentPath === "/attack" ? "active" : ""}>Attack</a>
   <a href="/logs" class={currentPath === "/logs" ? "active" : ""}>Logs</a>
   <a href="/metrics" class={currentPath === "/metrics" ? "active" : ""}>Metrics</a>
-  <a href="/cleanup" class={currentPath === "/cleanup" ? "active" : ""}>Cleanup</a>
 </div>
