@@ -2,8 +2,8 @@
   import { onMount } from "svelte";
   import { env } from "$env/dynamic/public";
 
-  const backend_ip = env.PUBLIC_BACKEND_IP === "" ? "localhost" : env.PUBLIC_BACKEND_IP;
-  const backend_port = env.PUBLIC_BACKEND_PORT === "" ? "8000" : env.PUBLIC_BACKEND_PORT;
+  const backend_infra_ip = env.PUBLIC_BACKEND_INFRA_IP === "" ? "localhost" : env.PUBLIC_BACKEND_INFRA_IP;
+  const backend_infra_port = env.PUBLIC_BACKEND_INFRA_PORT === "" ? "8000" : env.PUBLIC_BACKEND_INFRA_PORT;
 
   let nginx_count = 0;
   let tomcat_count = 0;
@@ -32,7 +32,7 @@
   };
 
   async function buildEnvironment() {
-    const response = await fetch(`http://${backend_ip}:${backend_port}/apply`, {
+    const response = await fetch(`http://${backend_infra_ip}:${backend_infra_port}/apply`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -54,7 +54,7 @@
     cleanupStatus = "Cleaning up...";
     isCleaning = true;
 
-    const response = await fetch(`http://${backend_ip}:${backend_port}/destroy`, {
+    const response = await fetch(`http://${backend_infra_ip}:${backend_infra_port}/destroy`, {
       method: "POST",
     });
 
@@ -65,7 +65,7 @@
     isLoading = true;
     statusOutput = "Loading...";
 
-    const response = await fetch(`http://${backend_ip}:${backend_port}/status`, {
+    const response = await fetch(`http://${backend_infra_ip}:${backend_infra_port}/status`, {
       method: "POST",
     });
     const data = await response.json();
@@ -97,7 +97,7 @@
   }
 
   async function fetchCleanup() {
-    const response = await fetch(`http://${backend_ip}:${backend_port}/status`, {
+    const response = await fetch(`http://${backend_infra_ip}:${backend_infra_port}/status`, {
       method: "POST",
     });
     const data = await response.json();

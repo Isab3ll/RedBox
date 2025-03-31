@@ -19,10 +19,11 @@ COPY . .
 RUN cd terraform && \
     terraform init
 
-CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8000" ]
+CMD ["uvicorn", "backend_attack:app", "--host", "0.0.0.0", "--port", "8000" ]
 
 # Builowanie obrazu
-# docker build -t isab3ll/management:backend .
+# docker build -t isab3ll/management:backend_attack .
 
 # Pushowanie obrazu
-# docker push isab3ll/management:backend
+# docker push isab3ll/management:backend_attack
+# docker push isab3ll/management:backend_attack

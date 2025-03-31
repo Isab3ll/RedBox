@@ -1,3 +1,8 @@
+resource "docker_network" "infrastructure" {
+  name = "infrastructure"
+  driver = "bridge"
+}
+
 resource "docker_container" "nginx" {
   count = var.nginx_count
 
@@ -196,9 +201,4 @@ resource "docker_container" "httpd" {
     aliases = ["httpd-${count.index + 1}"]
   }
   
-}
-
-resource "docker_network" "infrastructure" {
-  name = "infrastructure"
-  driver = "bridge"
 }

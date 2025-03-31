@@ -6,18 +6,31 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - PUBLIC_BACKEND_IP=192.168.0.28
-      - PUBLIC_BACKEND_PORT=8000
+      - PUBLIC_BACKEND_INFRA_IP=192.168.0.28
+      - PUBLIC_BACKEND_INFRA_PORT=8000
+      - PUBLIC_BACKEND_ATTACK_IP=192.168.0.28
+      - PUBLIC_BACKEND_ATTACK_PORT=8100
       - PUBLIC_CALDERA_IP=192.168.0.31
       - PUBLIC_CALDERA_PORT=8888
       - PUBLIC_GRAFANA_IP=192.168.0.27
       - PUBLIC_GRAFANA_PORT=3000
 
-  backend:
-    build: ./Backend
-    image: isab3ll/management:backend
+  backend-infrastructure:
+    build: ./Backend_Infrastructure
+    image: isab3ll/management:backend-infrastructure
     ports:
       - "8000:8000"
+    environment:
+      - FRONTEND_IP=192.168.0.28
+      - FRONTEND_PORT=5173
+    volumes:
+      - /root/.ssh:/root/.ssh:ro
+
+  backend-attack:
+    build: ./Backend_Attack
+    image: isab3ll/management:backend-attack
+    ports:
+      - "8100:8000"
     environment:
       - FRONTEND_IP=192.168.0.28
       - FRONTEND_PORT=5173

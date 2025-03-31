@@ -19,17 +19,13 @@ app.add_middleware(
 )
 
 @app.post("/apply")
-def apply_infrastructure(data: dict):
+def apply_agent(data: dict):
     try:
         variables = {
-            "nginx_count": data.get("nginx_count", 0),
-            "tomcat_count": data.get("tomcat_count", 0),
-            "mysql_count": data.get("mysql_count", 0),
-            "postgres_count": data.get("postgres_count", 0),
-            "redis_count": data.get("redis_count", 0),
-            "wordpress_count": data.get("wordpress_count", 0),
-            "rabbitmq_count": data.get("rabbitmq_count", 0),
-            "httpd_count": data.get("httpd_count", 0)
+            "agent_type": data.get("agent_type", "sandcat"),
+            "agent_param": data.get("agent_param", "splunkd"),
+            "server_ip": data.get("server_ip", "localhost"),
+            "server_port": data.get("server_port", 8888),
         }
 
         variables_file = os.path.join(TERRAFORM_DIR, "terraform.tfvars.json")
@@ -43,13 +39,14 @@ def apply_infrastructure(data: dict):
             text=True,
             capture_output=True
         )
+        
         return {"status": "success", "output": result.stdout}
-    
+
     except subprocess.CalledProcessError as e:
         return {"status": "error", "output": e.stderr}
 
 @app.post("/destroy")
-def destroy_infrastructure():
+def destroy_agent():
     try:
         result = subprocess.run(
             ["terraform", "destroy", "-auto-approve", "-lock=false"],
@@ -59,12 +56,11 @@ def destroy_infrastructure():
             capture_output=True
         )
         return {"status": "success", "output": result.stdout}
-    
     except subprocess.CalledProcessError as e:
         return {"status": "error", "output": e.stderr}
 
 @app.post("/status")
-def destroy_infrastructure():
+def agent_status():
     try:
         result = subprocess.run(
             ["terraform", "state", "list"],
