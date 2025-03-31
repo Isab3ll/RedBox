@@ -7,6 +7,11 @@ resource "docker_container" "ragdoll" {
   name  = "agent-ragdoll"
   image = "python:3.13-bookworm"
 
+  labels {
+    label = "module"
+    value = "attack"
+  }
+
   networks_advanced {
     name = data.docker_network.infrastructure.name
   }
@@ -26,6 +31,11 @@ resource "docker_container" "sandcat" {
   count = var.agent_type == "sandcat" ? 1 : 0
   name  = "agent-sandcat"
   image = "python:3.13-bookworm"
+
+  labels {
+    label = "module"
+    value = "attack"
+  }
 
   networks_advanced {
     name = data.docker_network.infrastructure.name
@@ -47,6 +57,11 @@ resource "docker_container" "manx" {
   name  = "agent-manx"
   image = "python:3.13-bookworm"
 
+  labels {
+    label = "module"
+    value = "attack"
+  }
+  
   networks_advanced {
     name = data.docker_network.infrastructure.name
   }

@@ -1,7 +1,18 @@
 services:
 
   caldera:
-    image: caldera:latest
+    build:
+      context: ./caldera
+      args:
+        - VARIANT=full
     container_name: caldera
     ports:
       - "8888:8888"
+      - "8443:8443"
+      - "7010:7010"
+      - "7011:7011/udp"
+      - "7012:7012"
+      - "8853:8853"
+      - "8022:8022"
+      - "2222:2222"
+    command: --log DEBUG
