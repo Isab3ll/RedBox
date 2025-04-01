@@ -13,28 +13,28 @@
 	let server_ip = caldera_ip;
 	let server_port = caldera_port;
 
-	let deploymentStatus = "";
+	let status = "";
 
 	const agentDescriptions = {
-		ragdoll: {
-			param: "app.contact.html",
-			placeholder: "eg. weather, network, system",
-			key: "ragdoll_contact_html",
-		},
 		sandcat: {
 			param: "agents.implant_name",
-			placeholder: "eg. splunkd, sysmon, defender",
+			placeholder: "e.g. splunkd, sysmon, defender",
 			key: "sandcat_implant_name",
+		},
+		ragdoll: {
+			param: "app.contact.html",
+			placeholder: "e.g. weather, network, system",
+			key: "ragdoll_contact_html",
 		},
 		manx: {
 			param: "agents.implant_name",
-			placeholder: "eg. splunkd, sysmon, defender",
+			placeholder: "e.g. splunkd, sysmon, defender",
 			key: "manx_implant_name",
 		},
 	};
 
 	async function deployAgent() {
-		deploymentStatus = "Deploying...";
+		status = "Deploying...";
 
 		const response = await fetch(
 			`http://${backend_attack_ip}:${backend_attack_port}/apply`,
@@ -49,13 +49,13 @@
 				}),
 			},
 		);
-
 		const result = await response.json();
-		deploymentStatus = result.status === "success" ? "Deployment successful!" : "Deployment failed!";
+
+		status = result.status === "success" ? "Deployment successful!" : "Deployment failed. Rebuild infrastructure and try again.";
 	}
 
 	async function destroyAgent() {
-		deploymentStatus = "Destroying...";
+		status = "Destroying...";
 
 		const response = await fetch(
 			`http://${backend_attack_ip}:${backend_attack_port}/destroy`,
@@ -63,35 +63,31 @@
 				method: "POST",
 			},
 		);
-
 		const result = await response.json();
-		deploymentStatus = result.status === "success" ? "Agent destroyed!" : "Destroy failed!";
+
+		status = result.status === "success" ? "Agent destroyed!" : "Destroy failed, please try again.";
 	}
 </script>
 
-<h2>Deploy Agent</h2>
+<h2>Deploy Attack Agent</h2>
 
-<label for="agent-type">Agent Type:</label>
-<select id="agent-type" bind:value={agent_type}>
-	<option value="ragdoll">Ragdoll</option>
-	<option value="sandcat">Sandcat</option>
-	<option value="manx">Manx</option>
-</select>
+<div class="config-box">
+	<label for="agent-type">Agent Type</label>
+	<select id="agent-type" bind:value={agent_type}>
+		<option value="sandcat">Sandcat</option>
+		<option value="ragdoll">Ragdoll</option>
+		<option value="manx">Manx</option>
+	</select>
 
-<label for="agent-input">Agent Parameter ({agentDescriptions[agent_type].param}):</label>
-<input
-	id="agent-input"
-	type="text"
-	bind:value={agent_param}
-	placeholder={agentDescriptions[agent_type].placeholder}
-/>
+	<label for="agent-param">Agent Parameter ({agentDescriptions[agent_type].param})</label>
+	<input id="agent-param"	type="text"	placeholder={agentDescriptions[agent_type].placeholder}	bind:value={agent_param}/>
 
-<button on:click={deployAgent}>Deploy Agent</button>
-<button on:click={destroyAgent}>Destroy Agent</button>
+	<button class="action-button" on:click={deployAgent}>Deploy Agent</button>
+	<button class="action-button" on:click={destroyAgent}>Destroy Agent</button>
 
-<p>{deploymentStatus}</p>
-<br />
+	<p>{status}</p>
+</div>
 
 <h2>Caldera Framework</h2>
-<br>
 <a href={caldera_url} target="_blank" class="action-button">Open Caldera</a>
+<br />
