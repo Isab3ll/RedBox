@@ -26,4 +26,3 @@ CMD ["uvicorn", "backend_attack:app", "--host", "0.0.0.0", "--port", "8000" ]
 
 # Pushowanie obrazu
 # docker push isab3ll/management:backend_attack
-# docker push isab3ll/management:backend_attack
