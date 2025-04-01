@@ -18,7 +18,7 @@ resource "docker_container" "ragdoll" {
 
   env = [
     "SERVER=http://${var.server_ip}:${var.server_port}",
-    "CONTACT_HTML=${var.agent_param}"
+    "CONTACT_HTML=weather"
   ]
 
   command = [

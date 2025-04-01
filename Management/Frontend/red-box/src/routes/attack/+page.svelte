@@ -1,4 +1,5 @@
 <script>
+	import { onMount } from "svelte";
 	import { env } from "$env/dynamic/public";
 
 	const caldera_ip = env.PUBLIC_CALDERA_IP || "localhost";
@@ -13,7 +14,14 @@
 	let server_ip = caldera_ip;
 	let server_port = caldera_port;
 
+	let deploymentStatus = "";
 	let status = "";
+
+	let agents = [];
+
+	let isDeploying = false;
+	let isCleaning = false;
+	let isLoading = false;
 
 	const agentDescriptions = {
 		sandcat: {
@@ -34,7 +42,8 @@
 	};
 
 	async function deployAgent() {
-		status = "Deploying...";
+		deploymentStatus = "Deploying...";
+		isDeploying = true;
 
 		const response = await fetch(
 			`http://${backend_attack_ip}:${backend_attack_port}/apply`,
@@ -51,11 +60,13 @@
 		);
 		const result = await response.json();
 
-		status = result.status === "success" ? "Deployment successful!" : "Deployment failed. Rebuild infrastructure and try again.";
+		deploymentStatus = result.status === "success" ? "Deployment successful!" : "Deployment failed. Rebuild infrastructure and try again.";
+		isDeploying = false;
 	}
 
 	async function destroyAgent() {
-		status = "Destroying...";
+		deploymentStatus = "Destroying...";
+		isCleaning = true;
 
 		const response = await fetch(
 			`http://${backend_attack_ip}:${backend_attack_port}/destroy`,
@@ -65,8 +76,57 @@
 		);
 		const result = await response.json();
 
-		status = result.status === "success" ? "Agent destroyed!" : "Destroy failed, please try again.";
+		deploymentStatus = result.status === "success" ? "Agent destroyed!" : "Destroy failed, please try again.";
+		isCleaning = false;
 	}
+
+	async function fetchAgentStatus() {
+		status = "Loading ...";
+		isLoading = true;
+
+		const response = await fetch(
+			`http://${backend_attack_ip}:${backend_attack_port}/status`,
+			{
+				method: "POST",
+			},
+		);
+		const result = await response.json();
+
+		if (result.status === "success") {
+			if (result.output.trim()) {
+				agents = result.output
+					.split("\n")
+					.map((agent) => {
+						const regex = /([a-zA-Z0-9_]+)\[([0-9]+)\]/;
+						const match = agent.match(regex);
+						if (match) {
+							return { name: match[1], index: match[2] };
+						}
+						return null;
+					})
+					.filter((item) => item !== null);
+					status = "";
+			} else {
+				status = "No agents are running.";
+				agents = [];
+			}
+		} else {
+			status = `Error fetching status. Please try again.`;
+			agents = [];
+		}
+
+		isLoading = false;
+	}
+
+	onMount(() => {
+		fetchAgentStatus();
+		const interval = setInterval(() => {
+			if (!isCleaning && !isDeploying) {
+				fetchAgentStatus();
+			}
+		}, 5000);
+		return () => clearInterval(interval);
+	});
 </script>
 
 <h2>Deploy Attack Agent</h2>
@@ -79,14 +139,49 @@
 		<option value="manx">Manx</option>
 	</select>
 
-	<label for="agent-param">Agent Parameter ({agentDescriptions[agent_type].param})</label>
-	<input id="agent-param"	type="text"	placeholder={agentDescriptions[agent_type].placeholder}	bind:value={agent_param}/>
+	{#if agent_type !== 'ragdoll'}
+		<label for="agent-param">Agent Parameter ({agentDescriptions[agent_type].param})</label>
+		<input 
+			id="agent-param" 
+			type="text" 
+			placeholder={agentDescriptions[agent_type].placeholder} 
+			bind:value={agent_param}
+		/>
+	{/if}
 
 	<button class="action-button" on:click={deployAgent}>Deploy Agent</button>
 	<button class="action-button" on:click={destroyAgent}>Destroy Agent</button>
 
-	<p>{status}</p>
+	<p>{deploymentStatus}</p>
 </div>
+
+<h2>Agent Status</h2>
+{#if isLoading && agents.length === 0}
+	<p>{status}</p>
+{:else if agents.length === 0}
+	<p>{status}</p>
+{:else}
+	<div class="container-status">
+		<table>
+			<thead>
+				<tr>
+					<th>Agent</th>
+					<th>Instance ID</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each agents as { name, index }}
+					<tr>
+						<td>{name}</td>
+						<td>{index}</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
+{/if}
+
+<button class="action-button" on:click={fetchAgentStatus}>Refresh Status</button>
 
 <h2>Caldera Framework</h2>
 <a href={caldera_url} target="_blank" class="action-button">Open Caldera</a>

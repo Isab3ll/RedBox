@@ -17,15 +17,15 @@
 	let rabbitmq_count = 0;
 	let httpd_count = 0;
 
-	let status = "";
 	let deploymentStatus = "";
 	let cleanupStatus = "";
+	let status = "";
 
 	let containers = [];
 
-	let isLoading = false;
-	let isCleaning = false;
 	let isDeploying = false;
+	let isCleaning = false;
+	let isLoading = false;
 
 	const resetCounts = () => {
 		nginx_count = 0;
