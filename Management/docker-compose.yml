@@ -25,6 +25,7 @@ services:
       - FRONTEND_PORT=5173
     volumes:
       - /root/.ssh:/root/.ssh:ro
+      - /root/terraform_infrastructure.tfstate:/usr/src/app/terraform/terraform.tfstate
 
   backend-attack:
     build: ./Backend_Attack
@@ -36,3 +37,4 @@ services:
       - FRONTEND_PORT=5173
     volumes:
       - /root/.ssh:/root/.ssh:ro
+      - /root/terraform_attack.tfstate:/usr/src/app/terraform/terraform.tfstate
