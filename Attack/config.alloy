@@ -1,0 +1,36 @@
+logging {
+  level  = "debug"
+  format = "logfmt"
+}
+
+loki.write "loki" {
+    endpoint {
+        url = "http://192.168.0.27:3100/loki/api/v1/push"
+    }
+}
+
+discovery.docker "linux" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "container_metadata" {
+  targets = []
+
+  rule {
+    target_label = "container"
+    source_labels = ["__meta_docker_container_name"]
+  }
+
+  rule {
+    target_label = "module"
+    source_labels = ["__meta_docker_container_label_module"]
+  }
+}
+
+loki.source.docker "default" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.linux.targets
+  forward_to = [loki.write.loki.receiver]
+  relabel_rules = discovery.relabel.container_metadata.rules
+  refresh_interval = "10s"
+}

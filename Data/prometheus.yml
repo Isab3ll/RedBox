@@ -5,4 +5,4 @@ global:
 scrape_configs:
   - job_name: 'cadvisor'
     static_configs:
-      - targets: ['192.168.0.29:3100']
+      - targets: ['192.168.0.29:3100', '192.168.0.31:3100']
