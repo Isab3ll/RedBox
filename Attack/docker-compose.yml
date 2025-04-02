@@ -19,6 +19,7 @@ services:
 
   alloy:
     image: grafana/alloy:latest
+    container_name: alloy-attack
     user: '0'
     ports:
       - 3000:3000
@@ -31,7 +32,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
-    container_name: cadvisor
+    container_name: cadvisor-attack
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro

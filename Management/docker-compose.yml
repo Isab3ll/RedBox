@@ -3,6 +3,7 @@ services:
   frontend:
     build: ./Frontend/red-box
     image: isab3ll/management:frontend
+    container_name: frontend
     ports:
       - "5173:5173"
     environment:
@@ -18,6 +19,7 @@ services:
   backend-infrastructure:
     build: ./Backend_Infrastructure
     image: isab3ll/management:backend-infrastructure
+    container_name: backend-infrastructure
     ports:
       - "8000:8000"
     environment:
@@ -30,6 +32,7 @@ services:
   backend-attack:
     build: ./Backend_Attack
     image: isab3ll/management:backend-attack
+    container_name: backend-attack
     ports:
       - "8100:8000"
     environment:

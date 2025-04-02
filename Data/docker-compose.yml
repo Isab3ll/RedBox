@@ -2,6 +2,7 @@ services:
   
   loki:
     image: grafana/loki:latest
+    container_name: loki
     ports:
       - 3100:3100
     volumes:
@@ -9,6 +10,7 @@ services:
       
   prometheus:
     image: prom/prometheus
+    container_name: prometheus
     ports:
       - 9090:9090
     volumes:
@@ -16,6 +18,7 @@ services:
 
   grafana:
     image: grafana/grafana
+    container_name: grafana
     user: '0'
     ports:
       - 3000:3000
