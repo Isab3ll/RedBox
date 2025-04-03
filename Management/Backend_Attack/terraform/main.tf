@@ -1,9 +1,7 @@
-data "docker_network" "infrastructure" {
-  name = "infrastructure"
-}
-
 resource "docker_container" "ragdoll" {
+  provider = docker.backend-attack
   count = var.agent_type == "ragdoll" ? 1 : 0
+
   name  = "agent-ragdoll"
   image = "python:3.13-bookworm"
 
@@ -13,7 +11,7 @@ resource "docker_container" "ragdoll" {
   }
 
   networks_advanced {
-    name = data.docker_network.infrastructure.name
+    name = "infrastructure"
   }
 
   env = [
@@ -28,7 +26,9 @@ resource "docker_container" "ragdoll" {
 }
 
 resource "docker_container" "sandcat" {
+  provider = docker.backend-attack
   count = var.agent_type == "sandcat" ? 1 : 0
+
   name  = "agent-sandcat"
   image = "python:3.13-bookworm"
 
@@ -38,7 +38,7 @@ resource "docker_container" "sandcat" {
   }
 
   networks_advanced {
-    name = data.docker_network.infrastructure.name
+    name = "infrastructure"
   }
 
   env = [
@@ -53,7 +53,9 @@ resource "docker_container" "sandcat" {
 }
 
 resource "docker_container" "manx" {
+  provider = docker.backend-attack
   count = var.agent_type == "manx" ? 1 : 0
+
   name  = "agent-manx"
   image = "python:3.13-bookworm"
 
@@ -63,9 +65,9 @@ resource "docker_container" "manx" {
   }
   
   networks_advanced {
-    name = data.docker_network.infrastructure.name
+    name = "infrastructure"
   }
-
+  
   env = [
     "SERVER=http://${var.server_ip}:${var.server_port}",
     "SOCKET=${var.server_ip}:7010",

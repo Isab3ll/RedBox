@@ -1,9 +1,11 @@
 resource "docker_network" "infrastructure" {
+  provider = docker.backend-infrastructure
   name = "infrastructure"
   driver = "bridge"
 }
 
 resource "docker_container" "nginx" {
+  provider = docker.backend-infrastructure
   count = var.nginx_count
 
   image = "nginx:latest"
@@ -23,9 +25,11 @@ resource "docker_container" "nginx" {
     name = docker_network.infrastructure.name
     aliases = ["nginx-${count.index + 1}"]
   }
+  depends_on = [ docker_network.infrastructure ]
 }
 
 resource "docker_container" "tomcat" {
+  provider = docker.backend-infrastructure
   count = var.tomcat_count
 
   image = "tomcat:latest"
@@ -45,9 +49,11 @@ resource "docker_container" "tomcat" {
     name = docker_network.infrastructure.name
     aliases = ["tomcat-${count.index + 1}"]
   }
+  depends_on = [ docker_network.infrastructure ]
 }
 
 resource "docker_container" "mysql" {
+  provider = docker.backend-infrastructure
   count = var.mysql_count
 
   image = "mysql:latest"
@@ -67,6 +73,7 @@ resource "docker_container" "mysql" {
     name = docker_network.infrastructure.name
     aliases = ["mysql-${count.index + 1}"]
   }
+  depends_on = [ docker_network.infrastructure ]
   
   env = [
     "MYSQL_ROOT_PASSWORD=mysql",
@@ -77,6 +84,7 @@ resource "docker_container" "mysql" {
 }
 
 resource "docker_container" "postgres" {
+  provider = docker.backend-infrastructure
   count = var.postgres_count
 
   image = "postgres:latest"
@@ -96,6 +104,7 @@ resource "docker_container" "postgres" {
     name = docker_network.infrastructure.name
     aliases = ["postgres-${count.index + 1}"]
   }
+  depends_on = [ docker_network.infrastructure ]
 
   env = [
     "POSTGRES_PASSWORD=postgres"
@@ -105,6 +114,7 @@ resource "docker_container" "postgres" {
 }
 
 resource "docker_container" "redis" {
+  provider = docker.backend-infrastructure
   count = var.redis_count
 
   image = "redis:latest"
@@ -124,10 +134,11 @@ resource "docker_container" "redis" {
     name = docker_network.infrastructure.name
     aliases = ["redis-${count.index + 1}"]
   }
-  
+  depends_on = [ docker_network.infrastructure ]  
 }
 
 resource "docker_container" "wordpress" {
+  provider = docker.backend-infrastructure
   count = var.wordpress_count
 
   image = "wordpress:latest"
@@ -147,6 +158,7 @@ resource "docker_container" "wordpress" {
     name = docker_network.infrastructure.name
     aliases = ["wordpress-${count.index + 1}"]
   }
+  depends_on = [ docker_network.infrastructure ]
 
   env = [
     "WORDPRESS_DB_HOST=mysql-${count.index + 1}",
@@ -154,10 +166,10 @@ resource "docker_container" "wordpress" {
     "WORDPRESS_DB_PASSWORD=mysql",
     "WORDPRESS_DB_NAME=mysql"
   ]
-  
 }
 
 resource "docker_container" "rabbitmq" {
+  provider = docker.backend-infrastructure
   count = var.rabbitmq_count
 
   image = "rabbitmq:management"
@@ -177,10 +189,11 @@ resource "docker_container" "rabbitmq" {
     name = docker_network.infrastructure.name
     aliases = ["rabbitmq-${count.index + 1}"]
   }
-  
+  depends_on = [ docker_network.infrastructure ]
 }
 
 resource "docker_container" "httpd" {
+  provider = docker.backend-infrastructure
   count = var.httpd_count
 
   image = "httpd:latest"
@@ -200,5 +213,5 @@ resource "docker_container" "httpd" {
     name = docker_network.infrastructure.name
     aliases = ["httpd-${count.index + 1}"]
   }
-  
+  depends_on = [ docker_network.infrastructure ]
 }
