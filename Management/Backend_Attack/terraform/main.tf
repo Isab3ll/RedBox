@@ -10,8 +10,18 @@ resource "docker_container" "ragdoll" {
     value = "attack"
   }
 
-  networks_advanced {
-    name = "infrastructure"
+  dynamic "networks_advanced" {
+    for_each = var.network_external ? [1] : []
+    content {
+      name = "external"
+    }
+  }
+
+  dynamic "networks_advanced" {
+    for_each = var.network_internal ? [1] : []
+    content {
+      name = "internal"
+    }
   }
 
   env = [
@@ -37,8 +47,18 @@ resource "docker_container" "sandcat" {
     value = "attack"
   }
 
-  networks_advanced {
-    name = "infrastructure"
+  dynamic "networks_advanced" {
+    for_each = var.network_external ? [1] : []
+    content {
+      name = "external"
+    }
+  }
+  
+  dynamic "networks_advanced" {
+    for_each = var.network_internal ? [1] : []
+    content {
+      name = "internal"
+    }
   }
 
   env = [
@@ -64,8 +84,18 @@ resource "docker_container" "manx" {
     value = "attack"
   }
   
-  networks_advanced {
-    name = "infrastructure"
+  dynamic "networks_advanced" {
+    for_each = var.network_external ? [1] : []
+    content {
+      name = "external"
+    }
+  }
+  
+  dynamic "networks_advanced" {
+    for_each = var.network_internal ? [1] : []
+    content {
+      name = "internal"
+    }
   }
   
   env = [

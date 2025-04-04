@@ -4,6 +4,18 @@ variable "nginx_count" {
   default     = 0
 }
 
+variable "nginx_external_count" {
+  description = "Nginx external instances"
+  type        = number
+  default     = 0
+}
+
+variable "nginx_internal_external_count" {
+  description = "Nginx instances that are both internal and external"
+  type        = number
+  default     = 0
+}
+
 variable "tomcat_count" {
   description = "Tomcat instances"
   type        = number
@@ -42,6 +54,18 @@ variable "rabbitmq_count" {
 
 variable "httpd_count" {
   description = "Apache HTTPD instances"
+  type        = number
+  default     = 0
+}
+
+variable "httpd_external_count" {
+  description = "Apache HTTPD external instances"
+  type        = number
+  default     = 0
+}
+
+variable "httpd_internal_external_count" {
+  description = "Apache HTTPD instances that are both internal and external"
   type        = number
   default     = 0
 }

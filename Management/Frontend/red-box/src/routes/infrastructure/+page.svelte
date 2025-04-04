@@ -9,6 +9,8 @@
 	const backend_attack_port = env.PUBLIC_BACKEND_ATTACK_PORT === "" ? "8100" : env.PUBLIC_BACKEND_ATTACK_PORT;
 
 	let nginx_count = 0;
+	let nginx_external_count = 0;
+	let nginx_internal_external_count = 0;
 	let tomcat_count = 0;
 	let mysql_count = 0;
 	let postgres_count = 0;
@@ -16,6 +18,8 @@
 	let wordpress_count = 0;
 	let rabbitmq_count = 0;
 	let httpd_count = 0;
+	let httpd_external_count = 0;
+	let httpd_internal_external_count = 0;
 
 	let deploymentStatus = "";
 	let cleanupStatus = "";
@@ -29,6 +33,8 @@
 
 	const resetCounts = () => {
 		nginx_count = 0;
+		nginx_external_count = 0;
+		nginx_internal_external_count = 0;
 		tomcat_count = 0;
 		mysql_count = 0;
 		postgres_count = 0;
@@ -36,6 +42,8 @@
 		wordpress_count = 0;
 		rabbitmq_count = 0;
 		httpd_count = 0;
+		httpd_external_count = 0;
+		httpd_internal_external_count = 0;
 	};
 
 	async function buildEnvironment() {
@@ -49,6 +57,8 @@
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					nginx_count,
+					nginx_external_count,
+					nginx_internal_external_count,
 					tomcat_count,
 					mysql_count,
 					postgres_count,
@@ -56,6 +66,8 @@
 					wordpress_count,
 					rabbitmq_count,
 					httpd_count,
+					httpd_external_count,
+					httpd_internal_external_count,
 				}),
 			},
 		);
@@ -113,7 +125,7 @@
 				containers = result.output
 					.split("\n")
 					.map((container) => {
-						const regex = /([a-zA-Z0-9_]+)\[([0-9]+)\]/;
+						const regex = /(?:[\w.]+)?\.([a-zA-Z0-9-]+)\[([0-9]+)\]/;
 						const match = container.match(regex);
 						if (match) {
 							return { name: match[1], index: match[2] };
@@ -147,10 +159,12 @@
 
 <h2>Configure Infrastructure</h2>
 
+<h3>Internal Containers</h3>
+
 <div class="counter-container">
 	<div class="counter-box">
 		<img src="/nginx.svg" alt="Nginx Logo" class="container-logo" />
-		<p>Nginx containers</p>
+		<p>Nginx</p>
 		<div class="counter">
 			<button class="minus" on:click={() => (nginx_count = Math.max(0, nginx_count - 1))}>-</button>
 			<span>{nginx_count}</span>
@@ -160,7 +174,7 @@
 
 	<div class="counter-box">
 		<img src="/tomcat.svg" alt="Tomcat Logo" class="container-logo" />
-		<p>Tomcat containers</p>
+		<p>Tomcat</p>
 		<div class="counter">
 			<button class="minus" on:click={() => (tomcat_count = Math.max(0, tomcat_count - 1))}>-</button>
 			<span>{tomcat_count}</span>
@@ -170,7 +184,7 @@
 
 	<div class="counter-box">
 		<img src="/mysql.svg" alt="MySQL Logo" class="container-logo" />
-		<p>MySQL containers</p>
+		<p>MySQL</p>
 		<div class="counter">
 			<button class="minus" on:click={() => (mysql_count = Math.max(0, mysql_count - 1))}>-</button>
 			<span>{mysql_count}</span>
@@ -180,7 +194,7 @@
 
 	<div class="counter-box">
 		<img src="/postgres.svg" alt="Postgres Logo" class="container-logo" />
-		<p>Postgres containers</p>
+		<p>Postgres</p>
 		<div class="counter">
 			<button class="minus" on:click={() => (postgres_count = Math.max(0, postgres_count - 1))}>-</button>
 			<span>{postgres_count}</span>
@@ -190,7 +204,7 @@
 
 	<div class="counter-box">
 		<img src="/redis.svg" alt="Redis Logo" class="container-logo" />
-		<p>Redis containers</p>
+		<p>Redis</p>
 		<div class="counter">
 			<button class="minus" on:click={() => (redis_count = Math.max(0, redis_count - 1))}>-</button>
 			<span>{redis_count}</span>
@@ -200,7 +214,7 @@
 
 	<div class="counter-box">
 		<img src="/wordpress.svg" alt="WordPress Logo" class="container-logo" />
-		<p>WordPress containers</p>
+		<p>WordPress</p>
 		<div class="counter">
 			<button class="minus" on:click={() => (wordpress_count = Math.max(0, wordpress_count - 1))}>-</button>
 			<span>{wordpress_count}</span>
@@ -210,7 +224,7 @@
 
 	<div class="counter-box">
 		<img src="/rabbitmq.svg" alt="RabbitMQ Logo" class="container-logo" />
-		<p>RabbitMQ containers</p>
+		<p>RabbitMQ</p>
 		<div class="counter">
 			<button class="minus" on:click={() => (rabbitmq_count = Math.max(0, rabbitmq_count - 1))}>-</button>
 			<span>{rabbitmq_count}</span>
@@ -220,11 +234,55 @@
 
 	<div class="counter-box">
 		<img src="/httpd.svg" alt="HTTPD Logo" class="container-logo" />
-		<p>HTTPD containers</p>
+		<p>HTTPD</p>
 		<div class="counter">
 			<button class="minus" on:click={() => (httpd_count = Math.max(0, httpd_count - 1))}>-</button>
 			<span>{httpd_count}</span>
 			<button class="plus" on:click={() => httpd_count++}>+</button>
+		</div>
+	</div>
+</div>
+
+<h3>External Containers</h3>
+
+<div class="counter-container">
+	<div class="counter-box">
+		<img src="/nginx.svg" alt="Nginx Logo" class="container-logo" />
+		<p>External Nginx</p>
+		<div class="counter">
+			<button class="minus" on:click={() => (nginx_external_count = Math.max(0, nginx_external_count - 1))}>-</button>
+			<span>{nginx_external_count}</span>
+			<button class="plus" on:click={() => nginx_external_count++}>+</button>
+		</div>
+	</div>
+
+	<div class="counter-box">
+		<img src="/nginx.svg" alt="Nginx Logo" class="container-logo" />
+		<p>Internal/External Nginx</p>
+		<div class="counter">
+			<button class="minus" on:click={() => (nginx_internal_external_count = Math.max(0, nginx_internal_external_count - 1))}>-</button>
+			<span>{nginx_internal_external_count}</span>
+			<button class="plus" on:click={() => nginx_internal_external_count++}>+</button>
+		</div>
+	</div>
+
+	<div class="counter-box">
+		<img src="/httpd.svg" alt="HTTPD Logo" class="container-logo" />
+		<p>External HTTPD</p>
+		<div class="counter">
+			<button class="minus" on:click={() => (httpd_external_count = Math.max(0, httpd_external_count - 1))}>-</button>
+			<span>{httpd_external_count}</span>
+			<button class="plus" on:click={() => httpd_external_count++}>+</button>
+		</div>
+	</div>
+
+	<div class="counter-box">
+		<img src="/httpd.svg" alt="HTTPD Logo" class="container-logo" />
+		<p>Internal/External HTTPD</p>
+		<div class="counter">
+			<button class="minus" on:click={() => (httpd_internal_external_count = Math.max(0, httpd_internal_external_count - 1))}>-</button>
+			<span>{httpd_internal_external_count}</span>
+			<button class="plus" on:click={() => httpd_internal_external_count++}>+</button>
 		</div>
 	</div>
 </div>

@@ -26,6 +26,8 @@ def apply_agent(data: dict):
             "agent_param": data.get("agent_param", "splunkd"),
             "server_ip": data.get("server_ip", "localhost"),
             "server_port": data.get("server_port", 8888),
+            "network_internal": data.get("network_internal", False),
+            "network_external": data.get("network_external", True),
         }
 
         variables_file = os.path.join(TERRAFORM_DIR, "terraform.tfvars.json")

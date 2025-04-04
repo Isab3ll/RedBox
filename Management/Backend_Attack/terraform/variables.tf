@@ -17,3 +17,15 @@ variable "server_port" {
   description = "Server port number"
   type        = number
 }
+
+variable "network_internal" {
+  description = "Flag to create an internal network"
+  type        = bool
+  default     = false
+}
+
+variable "network_external" {
+  description = "Flag to create an external network"
+  type        = bool
+  default     = true
+}

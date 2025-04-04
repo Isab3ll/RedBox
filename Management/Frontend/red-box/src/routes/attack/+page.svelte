@@ -13,6 +13,8 @@
 	let agent_param = "splunkd";
 	let server_ip = caldera_ip;
 	let server_port = caldera_port;
+	let network_internal = false;
+	let network_external = true;
 
 	let deploymentStatus = "";
 	let status = "";
@@ -55,6 +57,8 @@
 					agent_param,
 					server_ip,
 					server_port,
+					network_internal,
+					network_external,
 				}),
 			},
 		);
@@ -148,6 +152,15 @@
 			bind:value={agent_param}
 		/>
 	{/if}
+
+	<div class="checkbox-container">
+		<label for="network-internal" class="checkbox-label">Network Internal</label>
+		<input id="network-internal" type="checkbox" bind:checked={network_internal} />
+	</div>
+	<div class="checkbox-container">
+		<label for="network-external" class="checkbox-label">Network External</label>
+		<input id="network-external" type="checkbox" bind:checked={network_external} />
+	</div>
 
 	<button class="action-button" on:click={deployAgent}>Deploy Agent</button>
 	<button class="action-button" on:click={destroyAgent}>Destroy Agent</button>

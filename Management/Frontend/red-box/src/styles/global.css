@@ -201,3 +201,17 @@ tr:hover {
 .config-box button:hover {
 	background-color: #888;
 }
+
+.checkbox-container {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: fit-content;
+	width: 100px;
+}
+
+.checkbox-label {
+	min-width: 160px;
+	display: inline-block;
+	text-align: left;
+}

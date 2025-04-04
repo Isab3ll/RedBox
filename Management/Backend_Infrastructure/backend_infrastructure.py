@@ -23,13 +23,17 @@ def apply_infrastructure(data: dict):
     try:
         variables = {
             "nginx_count": data.get("nginx_count", 0),
+            "nginx_external_count": data.get("nginx_external_count", 0),
+            "nginx_internal_external_count": data.get("nginx_internal_external_count", 0),
             "tomcat_count": data.get("tomcat_count", 0),
             "mysql_count": data.get("mysql_count", 0),
             "postgres_count": data.get("postgres_count", 0),
             "redis_count": data.get("redis_count", 0),
             "wordpress_count": data.get("wordpress_count", 0),
             "rabbitmq_count": data.get("rabbitmq_count", 0),
-            "httpd_count": data.get("httpd_count", 0)
+            "httpd_count": data.get("httpd_count", 0),
+            "httpd_external_count": data.get("httpd_external_count", 0),
+            "httpd_internal_external_count": data.get("httpd_internal_external_count", 0),
         }
 
         variables_file = os.path.join(TERRAFORM_DIR, "terraform.tfvars.json")

@@ -1,6 +1,12 @@
-resource "docker_network" "infrastructure" {
+resource "docker_network" "internal" {
   provider = docker.backend-infrastructure
-  name = "infrastructure"
+  name = "internal"
+  driver = "bridge"
+}
+
+resource "docker_network" "external" {
+  provider = docker.backend-infrastructure
+  name = "external"
   driver = "bridge"
 }
 
@@ -16,16 +22,68 @@ resource "docker_container" "nginx" {
     value = "infrastructure"
   }
 
+  # ports {
+  #   internal = 80
+  #   external = 8000 + count.index
+  # }
+
+  networks_advanced {
+    name = docker_network.internal.name
+    aliases = ["nginx-${count.index + 1}"]
+  }
+  depends_on = [ docker_network.internal ]
+}
+
+resource "docker_container" "nginx-external" {
+  provider = docker.backend-infrastructure
+  count = var.nginx_external_count
+
+  image = "nginx:latest"
+  name  = "nginx-external-${count.index + 1}"
+
+  labels {
+    label = "module"
+    value = "infrastructure"
+  }
+
   ports {
     internal = 80
     external = 8000 + count.index
   }
 
   networks_advanced {
-    name = docker_network.infrastructure.name
-    aliases = ["nginx-${count.index + 1}"]
+    name = docker_network.external.name
+    aliases = ["nginx-external-${count.index + 1}"]
   }
-  depends_on = [ docker_network.infrastructure ]
+  depends_on = [ docker_network.external ]
+}
+
+resource "docker_container" "nginx-internal-external" {
+  provider = docker.backend-infrastructure
+  count = var.nginx_internal_external_count
+
+  image = "nginx:latest"
+  name  = "nginx-internal-external-${count.index + 1}"
+
+  labels {
+    label = "module"
+    value = "infrastructure"
+  }
+
+  ports {
+    internal = 80
+    external = 8000 + count.index
+  }
+
+  networks_advanced {
+    name = docker_network.internal.name
+    aliases = ["nginx-internal-external-${count.index + 1}"]
+  }
+  networks_advanced {
+    name = docker_network.external.name
+    aliases = ["nginx-internal-external-${count.index + 1}"]
+  }
+  depends_on = [ docker_network.internal, docker_network.external ]
 }
 
 resource "docker_container" "tomcat" {
@@ -40,16 +98,16 @@ resource "docker_container" "tomcat" {
     value = "infrastructure"
   }
 
-  ports {
-    internal = 8080
-    external = 8081 + count.index
-  }
+  # ports {
+  #   internal = 8080
+  #   external = 8081 + count.index
+  # }
 
   networks_advanced {
-    name = docker_network.infrastructure.name
+    name = docker_network.internal.name
     aliases = ["tomcat-${count.index + 1}"]
   }
-  depends_on = [ docker_network.infrastructure ]
+  depends_on = [ docker_network.internal ]
 }
 
 resource "docker_container" "mysql" {
@@ -64,16 +122,16 @@ resource "docker_container" "mysql" {
     value = "infrastructure"
   }
   
-  ports {
-    internal = 3306
-    external = 3307 + count.index
-  }
+  # ports {
+  #   internal = 3306
+  #   external = 3307 + count.index
+  # }
 
   networks_advanced {
-    name = docker_network.infrastructure.name
+    name = docker_network.internal.name
     aliases = ["mysql-${count.index + 1}"]
   }
-  depends_on = [ docker_network.infrastructure ]
+  depends_on = [ docker_network.internal ]
   
   env = [
     "MYSQL_ROOT_PASSWORD=mysql",
@@ -95,16 +153,16 @@ resource "docker_container" "postgres" {
     value = "infrastructure"
   }
   
-  ports {
-    internal = 5432
-    external = 5433 + count.index
-  }
+  # ports {
+  #   internal = 5432
+  #   external = 5433 + count.index
+  # }
 
   networks_advanced {
-    name = docker_network.infrastructure.name
+    name = docker_network.internal.name
     aliases = ["postgres-${count.index + 1}"]
   }
-  depends_on = [ docker_network.infrastructure ]
+  depends_on = [ docker_network.internal ]
 
   env = [
     "POSTGRES_PASSWORD=postgres"
@@ -125,16 +183,16 @@ resource "docker_container" "redis" {
     value = "infrastructure"
   }
   
-  ports {
-    internal = 6379
-    external = 6380 + count.index
-  }
+  # ports {
+  #   internal = 6379
+  #   external = 6380 + count.index
+  # }
 
   networks_advanced {
-    name = docker_network.infrastructure.name
+    name = docker_network.internal.name
     aliases = ["redis-${count.index + 1}"]
   }
-  depends_on = [ docker_network.infrastructure ]  
+  depends_on = [ docker_network.internal ]
 }
 
 resource "docker_container" "wordpress" {
@@ -149,16 +207,16 @@ resource "docker_container" "wordpress" {
     value = "infrastructure"
   }
   
-  ports {
-    internal = 80
-    external = 8100 + count.index
-  }
+  # ports {
+  #   internal = 80
+  #   external = 8100 + count.index
+  # }
 
   networks_advanced {
-    name = docker_network.infrastructure.name
+    name = docker_network.internal.name
     aliases = ["wordpress-${count.index + 1}"]
   }
-  depends_on = [ docker_network.infrastructure ]
+  depends_on = [ docker_network.internal ]
 
   env = [
     "WORDPRESS_DB_HOST=mysql-${count.index + 1}",
@@ -180,16 +238,16 @@ resource "docker_container" "rabbitmq" {
     value = "infrastructure"
   }
   
-  ports {
-    internal = 5672
-    external = 5673 + count.index
-  }
+  # ports {
+  #   internal = 5672
+  #   external = 5673 + count.index
+  # }
 
   networks_advanced {
-    name = docker_network.infrastructure.name
+    name = docker_network.internal.name
     aliases = ["rabbitmq-${count.index + 1}"]
   }
-  depends_on = [ docker_network.infrastructure ]
+  depends_on = [ docker_network.internal ]
 }
 
 resource "docker_container" "httpd" {
@@ -204,14 +262,66 @@ resource "docker_container" "httpd" {
     value = "infrastructure"
   }
   
+  # ports {
+  #   internal = 80
+  #   external = 8200 + count.index
+  # }
+
+  networks_advanced {
+    name = docker_network.internal.name
+    aliases = ["httpd-${count.index + 1}"]
+  }
+  depends_on = [ docker_network.internal ]
+}
+
+resource "docker_container" "httpd-external" {
+  provider = docker.backend-infrastructure
+  count = var.httpd_external_count
+
+  image = "httpd:latest"
+  name  = "httpd-external-${count.index + 1}"
+  
+  labels {
+    label = "module"
+    value = "infrastructure"
+  }
+  
   ports {
     internal = 80
     external = 8200 + count.index
   }
 
   networks_advanced {
-    name = docker_network.infrastructure.name
-    aliases = ["httpd-${count.index + 1}"]
+    name = docker_network.external.name
+    aliases = ["httpd-external-${count.index + 1}"]
   }
-  depends_on = [ docker_network.infrastructure ]
+  depends_on = [ docker_network.external ]
+}
+
+resource "docker_container" "httpd-internal-external" {
+  provider = docker.backend-infrastructure
+  count = var.httpd_internal_external_count
+
+  image = "httpd:latest"
+  name  = "httpd-internal-external-${count.index + 1}"
+  
+  labels {
+    label = "module"
+    value = "infrastructure"
+  }
+  
+  ports {
+    internal = 80
+    external = 8200 + count.index
+  }
+
+  networks_advanced {
+    name = docker_network.internal.name
+    aliases = ["httpd-internal-external-${count.index + 1}"]
+  }
+  networks_advanced {
+    name = docker_network.external.name
+    aliases = ["httpd-internal-external-${count.index + 1}"]
+  }
+  depends_on = [ docker_network.internal, docker_network.external ]
 }
