@@ -15,11 +15,9 @@
 	let mysql_count = 0;
 	let postgres_count = 0;
 	let redis_count = 0;
-	let wordpress_count = 0;
+	let wordpress_internal_external_count = 0;
 	let rabbitmq_count = 0;
 	let httpd_count = 0;
-	let httpd_external_count = 0;
-	let httpd_internal_external_count = 0;
 
 	let deploymentStatus = "";
 	let cleanupStatus = "";
@@ -31,6 +29,42 @@
 	let isCleaning = false;
 	let isLoading = false;
 
+	let nginx_default_config = `
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log notice;
+pid        /var/run/nginx.pid;
+
+
+events {
+	worker_connections  1024;
+}
+
+
+http {
+	include       /etc/nginx/mime.types;
+	default_type  application/octet-stream;
+
+	log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+					'$status $body_bytes_sent "$http_referer" '
+					'"$http_user_agent" "$http_x_forwarded_for"';
+
+	access_log  /var/log/nginx/access.log  main;
+
+	sendfile        on;
+	#tcp_nopush     on;
+
+	keepalive_timeout  65;
+
+	#gzip  on;
+
+	include /etc/nginx/conf.d/*.conf;
+}`
+
+	let nginx_external_config = nginx_default_config;
+	let nginx_internal_external_config = nginx_default_config;
+
 	const resetCounts = () => {
 		nginx_count = 0;
 		nginx_external_count = 0;
@@ -39,11 +73,17 @@
 		mysql_count = 0;
 		postgres_count = 0;
 		redis_count = 0;
-		wordpress_count = 0;
+		wordpress_internal_external_count = 0;
 		rabbitmq_count = 0;
 		httpd_count = 0;
-		httpd_external_count = 0;
-		httpd_internal_external_count = 0;
+	};
+
+	const resetExternalNginxConfig = () => {
+		nginx_external_config = nginx_default_config;
+	};
+
+	const resetInternalExternalNginxConfig = () => {
+		nginx_internal_external_config = nginx_default_config;
 	};
 
 	async function buildEnvironment() {
@@ -58,22 +98,22 @@
 				body: JSON.stringify({
 					nginx_count,
 					nginx_external_count,
+					nginx_external_config,
 					nginx_internal_external_count,
+					nginx_internal_external_config,
 					tomcat_count,
 					mysql_count,
 					postgres_count,
 					redis_count,
-					wordpress_count,
+					wordpress_internal_external_count,
 					rabbitmq_count,
 					httpd_count,
-					httpd_external_count,
-					httpd_internal_external_count,
 				}),
 			},
 		);
 		const result = await response.json();
 
-		deploymentStatus = result.status === "success" ? "Deployment successful!" : "Deployment failed. Perform cleanup and try again.";
+		deploymentStatus = result.status === "success" ? "Deployment successful!" : "Deployment failed. Perform cleanup, check config files and try again.";
 		isDeploying = false;
 
 		resetCounts();
@@ -124,9 +164,9 @@
 			if (result.output.trim()) {
 				containers = result.output
 					.split("\n")
-					.map((container) => {
-						const regex = /(?:[\w.]+)?\.([a-zA-Z0-9-]+)\[([0-9]+)\]/;
-						const match = container.match(regex);
+					.map((line) => {
+						const regex = /^docker_container\.([a-zA-Z0-9_-]+)\[(\d+)\]$/;
+						const match = line.trim().match(regex);
 						if (match) {
 							return { name: match[1], index: match[2] };
 						}
@@ -144,6 +184,14 @@
 		}
 
 		isLoading = false;
+	}
+
+	async function handleFile(event, setter) {
+		const file = event.target.files?.[0];
+		if (!file) return;
+
+		const text = await file.text();
+		setter(text);
 	}
 
 	onMount(() => {
@@ -213,16 +261,6 @@
 	</div>
 
 	<div class="counter-box">
-		<img src="/wordpress.svg" alt="WordPress Logo" class="container-logo" />
-		<p>WordPress</p>
-		<div class="counter">
-			<button class="minus" on:click={() => (wordpress_count = Math.max(0, wordpress_count - 1))}>-</button>
-			<span>{wordpress_count}</span>
-			<button class="plus" on:click={() => wordpress_count++}>+</button>
-		</div>
-	</div>
-
-	<div class="counter-box">
 		<img src="/rabbitmq.svg" alt="RabbitMQ Logo" class="container-logo" />
 		<p>RabbitMQ</p>
 		<div class="counter">
@@ -254,6 +292,9 @@
 			<span>{nginx_external_count}</span>
 			<button class="plus" on:click={() => nginx_external_count++}>+</button>
 		</div>
+		<label for="nginx_external_config">Config file</label>
+		<input type="file" accept=".conf" on:change={(e) => handleFile(e, val => nginx_external_config = val)} />
+		<button class="action-button" on:click={resetExternalNginxConfig}>Reset Config</button>
 	</div>
 
 	<div class="counter-box">
@@ -264,31 +305,25 @@
 			<span>{nginx_internal_external_count}</span>
 			<button class="plus" on:click={() => nginx_internal_external_count++}>+</button>
 		</div>
+		<label for="nginx_internal_external_config">Config file:</label>
+		<input type="file" accept=".conf" on:change={(e) => handleFile(e, val => nginx_internal_external_config = val)}/>
+		<button class="action-button" on:click={resetInternalExternalNginxConfig}>Reset Config</button>
 	</div>
 
 	<div class="counter-box">
-		<img src="/httpd.svg" alt="HTTPD Logo" class="container-logo" />
-		<p>External HTTPD</p>
+		<img src="/wordpress.svg" alt="WordPress Logo" class="container-logo" />
+		<p>Internal/External WordPress</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (httpd_external_count = Math.max(0, httpd_external_count - 1))}>-</button>
-			<span>{httpd_external_count}</span>
-			<button class="plus" on:click={() => httpd_external_count++}>+</button>
-		</div>
-	</div>
-
-	<div class="counter-box">
-		<img src="/httpd.svg" alt="HTTPD Logo" class="container-logo" />
-		<p>Internal/External HTTPD</p>
-		<div class="counter">
-			<button class="minus" on:click={() => (httpd_internal_external_count = Math.max(0, httpd_internal_external_count - 1))}>-</button>
-			<span>{httpd_internal_external_count}</span>
-			<button class="plus" on:click={() => httpd_internal_external_count++}>+</button>
+			<button class="minus" on:click={() => (wordpress_internal_external_count = Math.max(0, wordpress_internal_external_count - 1))}>-</button>
+			<span>{wordpress_internal_external_count}</span>
+			<button class="plus" on:click={() => wordpress_internal_external_count++}>+</button>
 		</div>
 	</div>
 </div>
 
 <br />
 <button class="action-button" on:click={() => buildEnvironment()}>Start Environment</button>
+<p>{deploymentStatus}</p>
 
 <h2>Infrastructure Status</h2>
 

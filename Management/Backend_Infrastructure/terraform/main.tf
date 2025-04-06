@@ -1,17 +1,88 @@
 resource "docker_network" "internal" {
-  provider = docker.backend-infrastructure
   name = "internal"
   driver = "bridge"
 }
 
 resource "docker_network" "external" {
-  provider = docker.backend-infrastructure
   name = "external"
   driver = "bridge"
 }
 
+resource "local_file" "nginx_external_config_file" {
+  content = var.nginx_external_config
+  filename = "${path.module}/nginx_external_config/nginx.conf"
+}
+
+resource "local_file" "nginx_internal_external_config_file" {
+  content = var.nginx_internal_external_config
+  filename = "${path.module}/nginx_internal_external_config/nginx.conf"
+}
+
+resource "null_resource" "create_nginx_external_config_dir" {
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /root/nginx_external_config"
+    ]
+    connection {
+      host        = "192.168.0.29"
+      user        = "root"
+      private_key = file("~/.ssh/id_ed25519")
+    }
+  }
+  triggers = {
+    config_hash = sha256(var.nginx_external_config)
+  }
+}
+
+resource "null_resource" "upload_nginx_external_config" {
+  depends_on = [ null_resource.create_nginx_external_config_dir, local_file.nginx_external_config_file ]
+  provisioner "file" {
+    source      = local_file.nginx_external_config_file.filename
+    destination = "/root/nginx_external_config/nginx.conf"
+    connection {
+      host        = "192.168.0.29"
+      user        = "root"
+      private_key = file("~/.ssh/id_ed25519")
+    }
+  }
+  triggers = {
+    config_hash = sha256(var.nginx_external_config)
+  }
+}
+
+resource "null_resource" "create_nginx_internal_external_config_dir" {
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /root/nginx_internal_external_config"
+    ]
+    connection {
+      host        = "192.168.0.29"
+      user        = "root"
+      private_key = file("~/.ssh/id_ed25519")
+    }
+  }
+  triggers = {
+    config_hash = sha256(var.nginx_internal_external_config)
+  }
+}
+
+resource "null_resource" "upload_nginx_internal_external_config" {
+  depends_on = [ null_resource.create_nginx_internal_external_config_dir, local_file.nginx_internal_external_config_file ]
+  provisioner "file" {
+    source      = local_file.nginx_internal_external_config_file.filename
+    destination = "/root/nginx_internal_external_config/nginx.conf"
+    connection {
+      host        = "192.168.0.29"
+      user        = "root"
+      private_key = file("~/.ssh/id_ed25519")
+    }
+  }
+  triggers = {
+    config_hash = sha256(var.nginx_internal_external_config)
+  }
+}
+
 resource "docker_container" "nginx" {
-  provider = docker.backend-infrastructure
   count = var.nginx_count
 
   image = "nginx:latest"
@@ -31,11 +102,11 @@ resource "docker_container" "nginx" {
     name = docker_network.internal.name
     aliases = ["nginx-${count.index + 1}"]
   }
+
   depends_on = [ docker_network.internal ]
 }
 
 resource "docker_container" "nginx-external" {
-  provider = docker.backend-infrastructure
   count = var.nginx_external_count
 
   image = "nginx:latest"
@@ -48,18 +119,26 @@ resource "docker_container" "nginx-external" {
 
   ports {
     internal = 80
-    external = 8000 + count.index
+    external = 8100 + count.index
   }
 
   networks_advanced {
     name = docker_network.external.name
     aliases = ["nginx-external-${count.index + 1}"]
   }
-  depends_on = [ docker_network.external ]
+
+  depends_on = [ docker_network.external, null_resource.upload_nginx_external_config ]
+
+  user = "root"
+
+  volumes {
+    host_path = "/root/nginx_external_config/nginx.conf"
+    container_path = "/etc/nginx/nginx.conf"
+    read_only = true
+  }
 }
 
 resource "docker_container" "nginx-internal-external" {
-  provider = docker.backend-infrastructure
   count = var.nginx_internal_external_count
 
   image = "nginx:latest"
@@ -72,7 +151,7 @@ resource "docker_container" "nginx-internal-external" {
 
   ports {
     internal = 80
-    external = 8000 + count.index
+    external = 8200 + count.index
   }
 
   networks_advanced {
@@ -83,11 +162,17 @@ resource "docker_container" "nginx-internal-external" {
     name = docker_network.external.name
     aliases = ["nginx-internal-external-${count.index + 1}"]
   }
-  depends_on = [ docker_network.internal, docker_network.external ]
+
+  depends_on = [ docker_network.internal, docker_network.external, null_resource.upload_nginx_internal_external_config ]
+
+  volumes {
+    host_path = "/root/nginx_internal_external_config/nginx.conf"
+    container_path = "/etc/nginx/nginx.conf"
+    read_only = true
+  }
 }
 
 resource "docker_container" "tomcat" {
-  provider = docker.backend-infrastructure
   count = var.tomcat_count
 
   image = "tomcat:latest"
@@ -107,11 +192,11 @@ resource "docker_container" "tomcat" {
     name = docker_network.internal.name
     aliases = ["tomcat-${count.index + 1}"]
   }
+
   depends_on = [ docker_network.internal ]
 }
 
 resource "docker_container" "mysql" {
-  provider = docker.backend-infrastructure
   count = var.mysql_count
 
   image = "mysql:latest"
@@ -131,6 +216,7 @@ resource "docker_container" "mysql" {
     name = docker_network.internal.name
     aliases = ["mysql-${count.index + 1}"]
   }
+
   depends_on = [ docker_network.internal ]
   
   env = [
@@ -142,7 +228,6 @@ resource "docker_container" "mysql" {
 }
 
 resource "docker_container" "postgres" {
-  provider = docker.backend-infrastructure
   count = var.postgres_count
 
   image = "postgres:latest"
@@ -162,6 +247,7 @@ resource "docker_container" "postgres" {
     name = docker_network.internal.name
     aliases = ["postgres-${count.index + 1}"]
   }
+
   depends_on = [ docker_network.internal ]
 
   env = [
@@ -172,7 +258,6 @@ resource "docker_container" "postgres" {
 }
 
 resource "docker_container" "redis" {
-  provider = docker.backend-infrastructure
   count = var.redis_count
 
   image = "redis:latest"
@@ -192,31 +277,36 @@ resource "docker_container" "redis" {
     name = docker_network.internal.name
     aliases = ["redis-${count.index + 1}"]
   }
+
   depends_on = [ docker_network.internal ]
 }
 
-resource "docker_container" "wordpress" {
-  provider = docker.backend-infrastructure
-  count = var.wordpress_count
+resource "docker_container" "wordpress_internal_external" {
+  count = var.wordpress_internal_external_count
 
   image = "wordpress:latest"
-  name  = "wordpress-${count.index + 1}"
+  name  = "wordpress-internal-external-${count.index + 1}"
   
   labels {
     label = "module"
     value = "infrastructure"
   }
   
-  # ports {
-  #   internal = 80
-  #   external = 8100 + count.index
-  # }
+  ports {
+    internal = 80
+    external = 8000 + count.index
+  }
 
   networks_advanced {
     name = docker_network.internal.name
-    aliases = ["wordpress-${count.index + 1}"]
+    aliases = ["wordpress-internal-external-${count.index + 1}"]
   }
-  depends_on = [ docker_network.internal ]
+  networks_advanced {
+    name = docker_network.external.name
+    aliases = ["wordpress-internal-external-${count.index + 1}"]
+  }
+
+  depends_on = [ docker_network.internal, docker_network.external, docker_container.mysql ]
 
   env = [
     "WORDPRESS_DB_HOST=mysql-${count.index + 1}",
@@ -227,7 +317,6 @@ resource "docker_container" "wordpress" {
 }
 
 resource "docker_container" "rabbitmq" {
-  provider = docker.backend-infrastructure
   count = var.rabbitmq_count
 
   image = "rabbitmq:management"
@@ -247,11 +336,11 @@ resource "docker_container" "rabbitmq" {
     name = docker_network.internal.name
     aliases = ["rabbitmq-${count.index + 1}"]
   }
+
   depends_on = [ docker_network.internal ]
 }
 
 resource "docker_container" "httpd" {
-  provider = docker.backend-infrastructure
   count = var.httpd_count
 
   image = "httpd:latest"
@@ -271,57 +360,6 @@ resource "docker_container" "httpd" {
     name = docker_network.internal.name
     aliases = ["httpd-${count.index + 1}"]
   }
+
   depends_on = [ docker_network.internal ]
-}
-
-resource "docker_container" "httpd-external" {
-  provider = docker.backend-infrastructure
-  count = var.httpd_external_count
-
-  image = "httpd:latest"
-  name  = "httpd-external-${count.index + 1}"
-  
-  labels {
-    label = "module"
-    value = "infrastructure"
-  }
-  
-  ports {
-    internal = 80
-    external = 8200 + count.index
-  }
-
-  networks_advanced {
-    name = docker_network.external.name
-    aliases = ["httpd-external-${count.index + 1}"]
-  }
-  depends_on = [ docker_network.external ]
-}
-
-resource "docker_container" "httpd-internal-external" {
-  provider = docker.backend-infrastructure
-  count = var.httpd_internal_external_count
-
-  image = "httpd:latest"
-  name  = "httpd-internal-external-${count.index + 1}"
-  
-  labels {
-    label = "module"
-    value = "infrastructure"
-  }
-  
-  ports {
-    internal = 80
-    external = 8200 + count.index
-  }
-
-  networks_advanced {
-    name = docker_network.internal.name
-    aliases = ["httpd-internal-external-${count.index + 1}"]
-  }
-  networks_advanced {
-    name = docker_network.external.name
-    aliases = ["httpd-internal-external-${count.index + 1}"]
-  }
-  depends_on = [ docker_network.internal, docker_network.external ]
 }

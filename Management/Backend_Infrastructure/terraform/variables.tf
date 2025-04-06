@@ -1,3 +1,13 @@
+variable "nginx_external_config" {
+  description = "Nginx external configuration file"
+  type        = string
+}
+
+variable "nginx_internal_external_config" {
+  description = "Nginx internal/external configuration file"
+  type        = string
+}
+
 variable "nginx_count" {
   description = "Nginx instances"
   type        = number
@@ -40,8 +50,8 @@ variable "redis_count" {
   default     = 0
 }
 
-variable "wordpress_count" {
-  description = "Wordpress instances"
+variable "wordpress_internal_external_count" {
+  description = "Wordpress instances that are both internal and external"
   type        = number
   default     = 0
 }
@@ -54,18 +64,6 @@ variable "rabbitmq_count" {
 
 variable "httpd_count" {
   description = "Apache HTTPD instances"
-  type        = number
-  default     = 0
-}
-
-variable "httpd_external_count" {
-  description = "Apache HTTPD external instances"
-  type        = number
-  default     = 0
-}
-
-variable "httpd_internal_external_count" {
-  description = "Apache HTTPD instances that are both internal and external"
   type        = number
   default     = 0
 }

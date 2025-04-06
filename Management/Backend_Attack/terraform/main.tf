@@ -1,5 +1,4 @@
 resource "docker_container" "ragdoll" {
-  provider = docker.backend-attack
   count = var.agent_type == "ragdoll" ? 1 : 0
 
   name  = "agent-ragdoll"
@@ -36,7 +35,6 @@ resource "docker_container" "ragdoll" {
 }
 
 resource "docker_container" "sandcat" {
-  provider = docker.backend-attack
   count = var.agent_type == "sandcat" ? 1 : 0
 
   name  = "agent-sandcat"
@@ -73,7 +71,6 @@ resource "docker_container" "sandcat" {
 }
 
 resource "docker_container" "manx" {
-  provider = docker.backend-attack
   count = var.agent_type == "manx" ? 1 : 0
 
   name  = "agent-manx"
