@@ -8,6 +8,8 @@
 	const backend_attack_ip = env.PUBLIC_BACKEND_ATTACK_IP === "" ? "localhost" : env.PUBLIC_BACKEND_ATTACK_IP;
 	const backend_attack_port = env.PUBLIC_BACKEND_ATTACK_PORT === "" ? "8100" : env.PUBLIC_BACKEND_ATTACK_PORT;
 
+	const infrastructure_ip = env.PUBLIC_INFRASTRUCTURE_IP === "" ? "localhost" : env.PUBLIC_INFRASTRUCTURE_IP;
+
 	let nginx_count = 0;
 	let nginx_external_count = 0;
 	let nginx_internal_external_count = 0;
@@ -214,7 +216,7 @@ http {
 		<img src="/nginx.svg" alt="Nginx Logo" class="container-logo" />
 		<p>Nginx</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (nginx_count = Math.max(0, nginx_count - 1))}>-</button>
+			<button class="minus" on:click={() => (nginx_count = Math.max(0, nginx_count))}>-</button>
 			<span>{nginx_count}</span>
 			<button class="plus" on:click={() => nginx_count++}>+</button>
 		</div>
@@ -224,7 +226,7 @@ http {
 		<img src="/tomcat.svg" alt="Tomcat Logo" class="container-logo" />
 		<p>Tomcat</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (tomcat_count = Math.max(0, tomcat_count - 1))}>-</button>
+			<button class="minus" on:click={() => (tomcat_count = Math.max(0, tomcat_count))}>-</button>
 			<span>{tomcat_count}</span>
 			<button class="plus" on:click={() => tomcat_count++}>+</button>
 		</div>
@@ -234,7 +236,7 @@ http {
 		<img src="/mysql.svg" alt="MySQL Logo" class="container-logo" />
 		<p>MySQL</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (mysql_count = Math.max(0, mysql_count - 1))}>-</button>
+			<button class="minus" on:click={() => (mysql_count = Math.max(0, mysql_count))}>-</button>
 			<span>{mysql_count}</span>
 			<button class="plus" on:click={() => mysql_count++}>+</button>
 		</div>
@@ -244,7 +246,7 @@ http {
 		<img src="/postgres.svg" alt="Postgres Logo" class="container-logo" />
 		<p>Postgres</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (postgres_count = Math.max(0, postgres_count - 1))}>-</button>
+			<button class="minus" on:click={() => (postgres_count = Math.max(0, postgres_count))}>-</button>
 			<span>{postgres_count}</span>
 			<button class="plus" on:click={() => postgres_count++}>+</button>
 		</div>
@@ -254,7 +256,7 @@ http {
 		<img src="/redis.svg" alt="Redis Logo" class="container-logo" />
 		<p>Redis</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (redis_count = Math.max(0, redis_count - 1))}>-</button>
+			<button class="minus" on:click={() => (redis_count = Math.max(0, redis_count))}>-</button>
 			<span>{redis_count}</span>
 			<button class="plus" on:click={() => redis_count++}>+</button>
 		</div>
@@ -264,7 +266,7 @@ http {
 		<img src="/rabbitmq.svg" alt="RabbitMQ Logo" class="container-logo" />
 		<p>RabbitMQ</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (rabbitmq_count = Math.max(0, rabbitmq_count - 1))}>-</button>
+			<button class="minus" on:click={() => (rabbitmq_count = Math.max(0, rabbitmq_count))}>-</button>
 			<span>{rabbitmq_count}</span>
 			<button class="plus" on:click={() => rabbitmq_count++}>+</button>
 		</div>
@@ -274,7 +276,7 @@ http {
 		<img src="/httpd.svg" alt="HTTPD Logo" class="container-logo" />
 		<p>HTTPD</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (httpd_count = Math.max(0, httpd_count - 1))}>-</button>
+			<button class="minus" on:click={() => (httpd_count = Math.max(0, httpd_count))}>-</button>
 			<span>{httpd_count}</span>
 			<button class="plus" on:click={() => httpd_count++}>+</button>
 		</div>
@@ -284,40 +286,55 @@ http {
 <h3>External Containers</h3>
 
 <div class="counter-container">
-	<div class="counter-box">
+	<div class="counter-box wide-box">
 		<img src="/nginx.svg" alt="Nginx Logo" class="container-logo" />
 		<p>External Nginx</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (nginx_external_count = Math.max(0, nginx_external_count - 1))}>-</button>
+			<button class="minus" on:click={() => (nginx_external_count = Math.max(0, nginx_external_count))}>-</button>
 			<span>{nginx_external_count}</span>
 			<button class="plus" on:click={() => nginx_external_count++}>+</button>
 		</div>
-		<label for="nginx_external_config">Config file</label>
-		<input type="file" accept=".conf" on:change={(e) => handleFile(e, val => nginx_external_config = val)} />
-		<button class="action-button" on:click={resetExternalNginxConfig}>Reset Config</button>
+		<div class="file-upload">
+			<div class="upload-wrapper">
+				<input type="file" accept=".conf" id="external-config" on:change={(e) => handleFile(e, val => nginx_external_config = val)}/>
+				<label for="external-config" class="upload-button">Choose Config File</label>
+			</div>
+			<textarea class="config-textarea" bind:value={nginx_external_config} rows="10" readonly></textarea>
+			<button class="action-button" on:click={resetExternalNginxConfig}>Reset Config</button>
+		</div>
 	</div>
 
-	<div class="counter-box">
+	<div class="counter-box wide-box">
 		<img src="/nginx.svg" alt="Nginx Logo" class="container-logo" />
 		<p>Internal/External Nginx</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (nginx_internal_external_count = Math.max(0, nginx_internal_external_count - 1))}>-</button>
+			<button class="minus" on:click={() => (nginx_internal_external_count = Math.max(0, nginx_internal_external_count))}>-</button>
 			<span>{nginx_internal_external_count}</span>
 			<button class="plus" on:click={() => nginx_internal_external_count++}>+</button>
 		</div>
-		<label for="nginx_internal_external_config">Config file:</label>
-		<input type="file" accept=".conf" on:change={(e) => handleFile(e, val => nginx_internal_external_config = val)}/>
-		<button class="action-button" on:click={resetInternalExternalNginxConfig}>Reset Config</button>
+		<div class="file-upload">
+			<div class="upload-wrapper">
+				<input type="file" accept=".conf" id="internal-external-config" on:change={(e) => handleFile(e, val => nginx_internal_external_config = val)}/>
+				<label for="internal-external-config" class="upload-button">Choose Config File</label>
+			</div>
+			<textarea class="config-textarea" bind:value={nginx_internal_external_config} rows="10" readonly></textarea>
+			<button class="action-button" on:click={resetInternalExternalNginxConfig}>Reset Config</button>
+		</div>
 	</div>
 
-	<div class="counter-box">
+	<div class="counter-box wide-box">
 		<img src="/wordpress.svg" alt="WordPress Logo" class="container-logo" />
 		<p>Internal/External WordPress</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (wordpress_internal_external_count = Math.max(0, wordpress_internal_external_count - 1))}>-</button>
+			<button class="minus" on:click={() => (wordpress_internal_external_count = Math.max(0, wordpress_internal_external_count))}>-</button>
 			<span>{wordpress_internal_external_count}</span>
 			<button class="plus" on:click={() => wordpress_internal_external_count++}>+</button>
 		</div>
+		<p>WordPress requires MySQL database.</p>
+		<p>Please ensure you have one MySQL container for each WordPress container running.</p>
+		{#each Array(wordpress_internal_external_count) as _, index}
+			<p><a href="http://{infrastructure_ip}:{8000 + index}" target="_blank">http://{infrastructure_ip}:{8000 + index}</a></p>
+	  	{/each}
 	</div>
 </div>
 

@@ -86,7 +86,7 @@ resource "docker_container" "nginx" {
   count = var.nginx_count
 
   image = "nginx:latest"
-  name  = "nginx-${count.index + 1}"
+  name  = "nginx-${count.index}"
 
   labels {
     label = "module"
@@ -100,7 +100,7 @@ resource "docker_container" "nginx" {
 
   networks_advanced {
     name = docker_network.internal.name
-    aliases = ["nginx-${count.index + 1}"]
+    aliases = ["nginx-${count.index}"]
   }
 
   depends_on = [ docker_network.internal ]
@@ -110,7 +110,7 @@ resource "docker_container" "nginx-external" {
   count = var.nginx_external_count
 
   image = "nginx:latest"
-  name  = "nginx-external-${count.index + 1}"
+  name  = "nginx-external-${count.index}"
 
   labels {
     label = "module"
@@ -124,7 +124,7 @@ resource "docker_container" "nginx-external" {
 
   networks_advanced {
     name = docker_network.external.name
-    aliases = ["nginx-external-${count.index + 1}"]
+    aliases = ["nginx-external-${count.index}"]
   }
 
   depends_on = [ docker_network.external, null_resource.upload_nginx_external_config ]
@@ -142,7 +142,7 @@ resource "docker_container" "nginx-internal-external" {
   count = var.nginx_internal_external_count
 
   image = "nginx:latest"
-  name  = "nginx-internal-external-${count.index + 1}"
+  name  = "nginx-internal-external-${count.index}"
 
   labels {
     label = "module"
@@ -156,11 +156,11 @@ resource "docker_container" "nginx-internal-external" {
 
   networks_advanced {
     name = docker_network.internal.name
-    aliases = ["nginx-internal-external-${count.index + 1}"]
+    aliases = ["nginx-internal-external-${count.index}"]
   }
   networks_advanced {
     name = docker_network.external.name
-    aliases = ["nginx-internal-external-${count.index + 1}"]
+    aliases = ["nginx-internal-external-${count.index}"]
   }
 
   depends_on = [ docker_network.internal, docker_network.external, null_resource.upload_nginx_internal_external_config ]
@@ -176,7 +176,7 @@ resource "docker_container" "tomcat" {
   count = var.tomcat_count
 
   image = "tomcat:latest"
-  name  = "tomcat-${count.index + 1}"
+  name  = "tomcat-${count.index}"
 
   labels {
     label = "module"
@@ -190,7 +190,7 @@ resource "docker_container" "tomcat" {
 
   networks_advanced {
     name = docker_network.internal.name
-    aliases = ["tomcat-${count.index + 1}"]
+    aliases = ["tomcat-${count.index}"]
   }
 
   depends_on = [ docker_network.internal ]
@@ -200,7 +200,7 @@ resource "docker_container" "mysql" {
   count = var.mysql_count
 
   image = "mysql:latest"
-  name  = "mysql-${count.index + 1}"
+  name  = "mysql-${count.index}"
   
   labels {
     label = "module"
@@ -214,7 +214,7 @@ resource "docker_container" "mysql" {
 
   networks_advanced {
     name = docker_network.internal.name
-    aliases = ["mysql-${count.index + 1}"]
+    aliases = ["mysql-${count.index}"]
   }
 
   depends_on = [ docker_network.internal ]
@@ -231,7 +231,7 @@ resource "docker_container" "postgres" {
   count = var.postgres_count
 
   image = "postgres:latest"
-  name  = "postgres-${count.index + 1}"
+  name  = "postgres-${count.index}"
   
   labels {
     label = "module"
@@ -245,7 +245,7 @@ resource "docker_container" "postgres" {
 
   networks_advanced {
     name = docker_network.internal.name
-    aliases = ["postgres-${count.index + 1}"]
+    aliases = ["postgres-${count.index}"]
   }
 
   depends_on = [ docker_network.internal ]
@@ -261,7 +261,7 @@ resource "docker_container" "redis" {
   count = var.redis_count
 
   image = "redis:latest"
-  name  = "redis-${count.index + 1}"
+  name  = "redis-${count.index}"
   
   labels {
     label = "module"
@@ -275,17 +275,17 @@ resource "docker_container" "redis" {
 
   networks_advanced {
     name = docker_network.internal.name
-    aliases = ["redis-${count.index + 1}"]
+    aliases = ["redis-${count.index}"]
   }
 
   depends_on = [ docker_network.internal ]
 }
 
-resource "docker_container" "wordpress_internal_external" {
+resource "docker_container" "wordpress-internal-external" {
   count = var.wordpress_internal_external_count
 
   image = "wordpress:latest"
-  name  = "wordpress-internal-external-${count.index + 1}"
+  name  = "wordpress-internal-external-${count.index}"
   
   labels {
     label = "module"
@@ -299,17 +299,17 @@ resource "docker_container" "wordpress_internal_external" {
 
   networks_advanced {
     name = docker_network.internal.name
-    aliases = ["wordpress-internal-external-${count.index + 1}"]
+    aliases = ["wordpress-internal-external-${count.index}"]
   }
   networks_advanced {
     name = docker_network.external.name
-    aliases = ["wordpress-internal-external-${count.index + 1}"]
+    aliases = ["wordpress-internal-external-${count.index}"]
   }
 
   depends_on = [ docker_network.internal, docker_network.external, docker_container.mysql ]
 
   env = [
-    "WORDPRESS_DB_HOST=mysql-${count.index + 1}",
+    "WORDPRESS_DB_HOST=mysql-${count.index}",
     "WORDPRESS_DB_USER=mysql",
     "WORDPRESS_DB_PASSWORD=mysql",
     "WORDPRESS_DB_NAME=mysql"
@@ -320,7 +320,7 @@ resource "docker_container" "rabbitmq" {
   count = var.rabbitmq_count
 
   image = "rabbitmq:management"
-  name  = "rabbitmq-${count.index + 1}"
+  name  = "rabbitmq-${count.index}"
   
   labels {
     label = "module"
@@ -334,7 +334,7 @@ resource "docker_container" "rabbitmq" {
 
   networks_advanced {
     name = docker_network.internal.name
-    aliases = ["rabbitmq-${count.index + 1}"]
+    aliases = ["rabbitmq-${count.index}"]
   }
 
   depends_on = [ docker_network.internal ]
@@ -344,7 +344,7 @@ resource "docker_container" "httpd" {
   count = var.httpd_count
 
   image = "httpd:latest"
-  name  = "httpd-${count.index + 1}"
+  name  = "httpd-${count.index}"
   
   labels {
     label = "module"
@@ -358,7 +358,7 @@ resource "docker_container" "httpd" {
 
   networks_advanced {
     name = docker_network.internal.name
-    aliases = ["httpd-${count.index + 1}"]
+    aliases = ["httpd-${count.index}"]
   }
 
   depends_on = [ docker_network.internal ]
