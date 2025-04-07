@@ -21,6 +21,8 @@
 	let rabbitmq_count = 0;
 	let httpd_count = 0;
 
+	let wordpress_internal_external_count_old = 0;
+
 	let deploymentStatus = "";
 	let cleanupStatus = "";
 	let status = "";
@@ -31,8 +33,8 @@
 	let isCleaning = false;
 	let isLoading = false;
 
-	let nginx_default_config = `
-user  nginx;
+	let nginx_default_config = 
+`user  nginx;
 worker_processes  auto;
 
 error_log  /var/log/nginx/error.log notice;
@@ -117,7 +119,7 @@ http {
 
 		deploymentStatus = result.status === "success" ? "Deployment successful!" : "Deployment failed. Perform cleanup, check config files and try again.";
 		isDeploying = false;
-
+		wordpress_internal_external_count_old = wordpress_internal_external_count;
 		resetCounts();
 		fetchStatus();
 	}
@@ -216,7 +218,7 @@ http {
 		<img src="/nginx.svg" alt="Nginx Logo" class="container-logo" />
 		<p>Nginx</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (nginx_count = Math.max(0, nginx_count))}>-</button>
+			<button class="minus" on:click={() => (nginx_count = Math.max(0, nginx_count-1))}>-</button>
 			<span>{nginx_count}</span>
 			<button class="plus" on:click={() => nginx_count++}>+</button>
 		</div>
@@ -226,7 +228,7 @@ http {
 		<img src="/tomcat.svg" alt="Tomcat Logo" class="container-logo" />
 		<p>Tomcat</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (tomcat_count = Math.max(0, tomcat_count))}>-</button>
+			<button class="minus" on:click={() => (tomcat_count = Math.max(0, tomcat_count-1))}>-</button>
 			<span>{tomcat_count}</span>
 			<button class="plus" on:click={() => tomcat_count++}>+</button>
 		</div>
@@ -236,7 +238,7 @@ http {
 		<img src="/mysql.svg" alt="MySQL Logo" class="container-logo" />
 		<p>MySQL</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (mysql_count = Math.max(0, mysql_count))}>-</button>
+			<button class="minus" on:click={() => (mysql_count = Math.max(0, mysql_count-1))}>-</button>
 			<span>{mysql_count}</span>
 			<button class="plus" on:click={() => mysql_count++}>+</button>
 		</div>
@@ -246,7 +248,7 @@ http {
 		<img src="/postgres.svg" alt="Postgres Logo" class="container-logo" />
 		<p>Postgres</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (postgres_count = Math.max(0, postgres_count))}>-</button>
+			<button class="minus" on:click={() => (postgres_count = Math.max(0, postgres_count-1))}>-</button>
 			<span>{postgres_count}</span>
 			<button class="plus" on:click={() => postgres_count++}>+</button>
 		</div>
@@ -256,7 +258,7 @@ http {
 		<img src="/redis.svg" alt="Redis Logo" class="container-logo" />
 		<p>Redis</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (redis_count = Math.max(0, redis_count))}>-</button>
+			<button class="minus" on:click={() => (redis_count = Math.max(0, redis_count-1))}>-</button>
 			<span>{redis_count}</span>
 			<button class="plus" on:click={() => redis_count++}>+</button>
 		</div>
@@ -266,7 +268,7 @@ http {
 		<img src="/rabbitmq.svg" alt="RabbitMQ Logo" class="container-logo" />
 		<p>RabbitMQ</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (rabbitmq_count = Math.max(0, rabbitmq_count))}>-</button>
+			<button class="minus" on:click={() => (rabbitmq_count = Math.max(0, rabbitmq_count-1))}>-</button>
 			<span>{rabbitmq_count}</span>
 			<button class="plus" on:click={() => rabbitmq_count++}>+</button>
 		</div>
@@ -276,7 +278,7 @@ http {
 		<img src="/httpd.svg" alt="HTTPD Logo" class="container-logo" />
 		<p>HTTPD</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (httpd_count = Math.max(0, httpd_count))}>-</button>
+			<button class="minus" on:click={() => (httpd_count = Math.max(0, httpd_count-1))}>-</button>
 			<span>{httpd_count}</span>
 			<button class="plus" on:click={() => httpd_count++}>+</button>
 		</div>
@@ -290,7 +292,7 @@ http {
 		<img src="/nginx.svg" alt="Nginx Logo" class="container-logo" />
 		<p>External Nginx</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (nginx_external_count = Math.max(0, nginx_external_count))}>-</button>
+			<button class="minus" on:click={() => (nginx_external_count = Math.max(0, nginx_external_count-1))}>-</button>
 			<span>{nginx_external_count}</span>
 			<button class="plus" on:click={() => nginx_external_count++}>+</button>
 		</div>
@@ -308,7 +310,7 @@ http {
 		<img src="/nginx.svg" alt="Nginx Logo" class="container-logo" />
 		<p>Internal/External Nginx</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (nginx_internal_external_count = Math.max(0, nginx_internal_external_count))}>-</button>
+			<button class="minus" on:click={() => (nginx_internal_external_count = Math.max(0, nginx_internal_external_count-1))}>-</button>
 			<span>{nginx_internal_external_count}</span>
 			<button class="plus" on:click={() => nginx_internal_external_count++}>+</button>
 		</div>
@@ -326,13 +328,13 @@ http {
 		<img src="/wordpress.svg" alt="WordPress Logo" class="container-logo" />
 		<p>Internal/External WordPress</p>
 		<div class="counter">
-			<button class="minus" on:click={() => (wordpress_internal_external_count = Math.max(0, wordpress_internal_external_count))}>-</button>
+			<button class="minus" on:click={() => (wordpress_internal_external_count = Math.max(0, wordpress_internal_external_count-1))}>-</button>
 			<span>{wordpress_internal_external_count}</span>
 			<button class="plus" on:click={() => wordpress_internal_external_count++}>+</button>
 		</div>
 		<p>WordPress requires MySQL database.</p>
 		<p>Please ensure you have one MySQL container for each WordPress container running.</p>
-		{#each Array(wordpress_internal_external_count) as _, index}
+		{#each Array(wordpress_internal_external_count_old) as _, index}
 			<p><a href="http://{infrastructure_ip}:{8000 + index}" target="_blank">http://{infrastructure_ip}:{8000 + index}</a></p>
 	  	{/each}
 	</div>
