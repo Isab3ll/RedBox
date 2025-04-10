@@ -64,14 +64,42 @@ def destroy_agent():
 @app.post("/status")
 def agent_status():
     try:
-        result = subprocess.run(
-            ["terraform", "state", "list"],
+        output_result = subprocess.run(
+            ["terraform", "output", "-json"],
             cwd=TERRAFORM_DIR,
             check=True,
             text=True,
             capture_output=True
         )
-        return {"status": "success", "output": result.stdout}
+        output_data = json.loads(output_result.stdout)
+
+        agents = []
+        agents_groups = [
+            "ragdoll_agent_ips",
+            "sandcat_agent_ips",
+            "manx_agent_ips",
+        ]
+
+        for group in agents_groups:
+            if group in output_data:
+                agent_list = output_data[group]["value"]
+                for agent in agent_list:
+                    name = agent.get("name")
+                    ip_info = "N/A"
+                    ip_0 = agent.get("ip_0")
+                    ip_1 = agent.get("ip_1")
+
+                    if ip_0 and ip_1:
+                        ip_info = f"{ip_0} / {ip_1}"
+                    elif ip_0:
+                        ip_info = ip_0
+
+                    agents.append({
+                        "name": name,
+                        "ip": ip_info,
+                    })
+
+        return {"status": "success", "agents": agents}
     
     except subprocess.CalledProcessError as e:
         return {"status": "error", "output": e.stderr}

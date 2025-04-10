@@ -119,6 +119,7 @@ http {
 
 		deploymentStatus = result.status === "success" ? "Deployment successful!" : "Deployment failed. Perform cleanup, check config files and try again.";
 		isDeploying = false;
+		
 		wordpress_internal_external_count_old = wordpress_internal_external_count;
 		resetCounts();
 		fetchStatus();
@@ -165,18 +166,8 @@ http {
 		const result = await response.json();
 
 		if (result.status === "success") {
-			if (result.output.trim()) {
-				containers = result.output
-					.split("\n")
-					.map((line) => {
-						const regex = /^docker_container\.([a-zA-Z0-9_-]+)\[(\d+)\]$/;
-						const match = line.trim().match(regex);
-						if (match) {
-							return { name: match[1], index: match[2] };
-						}
-						return null;
-					})
-					.filter((item) => item !== null);
+			if (result.containers?.length > 0) {
+				containers = result.containers;
 				status = "";
 			} else {
 				status = "No containers are running.";
@@ -357,13 +348,15 @@ http {
 				<tr>
 					<th>Container</th>
 					<th>Instance ID</th>
+					<th>IP Address</th>
 				</tr>
 			</thead>
 			<tbody>
-				{#each containers as { name, index }}
+				{#each containers as { name, id, ip }}
 					<tr>
 						<td>{name}</td>
-						<td>{index}</td>
+						<td>{id}</td>
+						<td>{ip}</td>
 					</tr>
 				{/each}
 			</tbody>

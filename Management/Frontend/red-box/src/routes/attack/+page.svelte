@@ -66,6 +66,8 @@
 
 		deploymentStatus = result.status === "success" ? "Deployment successful!" : "Deployment failed. Rebuild infrastructure and try again.";
 		isDeploying = false;
+
+		fetchAgentStatus();
 	}
 
 	async function destroyAgent() {
@@ -82,6 +84,8 @@
 
 		deploymentStatus = result.status === "success" ? "Agent destroyed!" : "Destroy failed, please try again.";
 		isCleaning = false;
+
+		fetchAgentStatus();
 	}
 
 	async function fetchAgentStatus() {
@@ -97,19 +101,9 @@
 		const result = await response.json();
 
 		if (result.status === "success") {
-			if (result.output.trim()) {
-				agents = result.output
-					.split("\n")
-					.map((agent) => {
-						const regex = /([a-zA-Z0-9_]+)\[([0-9]+)\]/;
-						const match = agent.match(regex);
-						if (match) {
-							return { name: match[1], index: match[2] };
-						}
-						return null;
-					})
-					.filter((item) => item !== null);
-					status = "";
+			if (result.agents?.length > 0) {
+				agents = result.agents;
+				status = "";
 			} else {
 				status = "No agents are running.";
 				agents = [];
@@ -179,14 +173,14 @@
 			<thead>
 				<tr>
 					<th>Agent</th>
-					<th>Instance ID</th>
+					<th>IP Address</th>
 				</tr>
 			</thead>
 			<tbody>
-				{#each agents as { name, index }}
+				{#each agents as { name, ip }}
 					<tr>
 						<td>{name}</td>
-						<td>{index}</td>
+						<td>{ip}</td>
 					</tr>
 				{/each}
 			</tbody>

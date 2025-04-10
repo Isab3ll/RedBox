@@ -2,6 +2,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import json
 import os
+import re
 import subprocess
 
 TERRAFORM_DIR = "terraform"
@@ -104,14 +105,54 @@ def destroy_infrastructure():
 @app.post("/status")
 def infrastructure_status():
     try:
-        result = subprocess.run(
-            ["terraform", "state", "list"],
+        output_result = subprocess.run(
+            ["terraform", "output", "-json"],
             cwd=TERRAFORM_DIR,
             check=True,
             text=True,
             capture_output=True
         )
-        return {"status": "success", "output": result.stdout}
-    
+        output_data = json.loads(output_result.stdout)
+
+        containers = []
+        container_groups = [
+            "httpd_container_ips",
+            "mysql_container_ips",
+            "nginx_container_ips",
+            "nginx_external_container_ips",
+            "nginx_internal_external_container_ips",
+            "postgres_container_ips",
+            "rabbitmq_container_ips",
+            "redis_container_ips",
+            "tomcat_container_ips",
+            "wordpress_internal_external_container_ips",
+        ]
+
+        for group in container_groups:
+            if group in output_data:
+                containers_list = output_data[group]["value"]
+                for container in containers_list:
+                    name = container.get("name")
+                    ip_info = "N/A"
+                    ip_0 = container.get("ip_0")
+                    ip_1 = container.get("ip_1")
+
+                    if ip_0 and ip_1:
+                        ip_info = f"{ip_0} / {ip_1}"
+                    elif ip_0:
+                        ip_info = f"{ip_0}"
+
+                    parts = name.split("-")
+                    container_name = "-".join(parts[:-1])
+                    container_id = parts[-1]
+
+                    containers.append({
+                        "name": container_name,
+                        "id": container_id,
+                        "ip": ip_info
+                    })
+
+        return {"status": "success", "containers": containers}
+
     except subprocess.CalledProcessError as e:
         return {"status": "error", "output": e.stderr}
