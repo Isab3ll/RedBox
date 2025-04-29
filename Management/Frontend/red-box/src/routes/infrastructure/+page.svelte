@@ -216,6 +216,16 @@ http {
 	</div>
 
 	<div class="counter-box">
+		<img src="/httpd.svg" alt="HTTPD Logo" class="container-logo" />
+		<p>HTTPD</p>
+		<div class="counter">
+			<button class="minus" on:click={() => (httpd_count = Math.max(0, httpd_count-1))}>-</button>
+			<span>{httpd_count}</span>
+			<button class="plus" on:click={() => httpd_count++}>+</button>
+		</div>
+	</div>
+	
+	<div class="counter-box">
 		<img src="/tomcat.svg" alt="Tomcat Logo" class="container-logo" />
 		<p>Tomcat</p>
 		<div class="counter">
@@ -262,16 +272,6 @@ http {
 			<button class="minus" on:click={() => (rabbitmq_count = Math.max(0, rabbitmq_count-1))}>-</button>
 			<span>{rabbitmq_count}</span>
 			<button class="plus" on:click={() => rabbitmq_count++}>+</button>
-		</div>
-	</div>
-
-	<div class="counter-box">
-		<img src="/httpd.svg" alt="HTTPD Logo" class="container-logo" />
-		<p>HTTPD</p>
-		<div class="counter">
-			<button class="minus" on:click={() => (httpd_count = Math.max(0, httpd_count-1))}>-</button>
-			<span>{httpd_count}</span>
-			<button class="plus" on:click={() => httpd_count++}>+</button>
 		</div>
 	</div>
 </div>
