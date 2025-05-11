@@ -326,7 +326,7 @@ http {
 		<p>WordPress requires MySQL database.</p>
 		<p>Please ensure you have one MySQL container for each WordPress container running.</p>
 		{#each Array(wordpress_internal_external_count_old) as _, index}
-			<p><a href="http://{infrastructure_ip}:{8000 + index}" target="_blank">http://{infrastructure_ip}:{8000 + index}</a></p>
+			<p><a href="http://{infrastructure_ip}:{80 + index}" target="_blank">http://{infrastructure_ip}:{80 + index}</a></p>
 	  	{/each}
 	</div>
 </div>

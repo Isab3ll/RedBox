@@ -294,7 +294,7 @@ resource "docker_container" "wordpress-internal-external" {
   
   ports {
     internal = 80
-    external = 8000 + count.index
+    external = 80 + count.index
   }
 
   networks_advanced {
